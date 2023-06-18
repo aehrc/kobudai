@@ -1,4 +1,4 @@
-name: snap2snomed-$(Date:yyyyMMdd)$(Rev:.r)_$(SourceBranchName)
+name: snapagogo-$(Date:yyyyMMdd)$(Rev:.r)_$(SourceBranchName)
 
 trigger:
   branches:
@@ -47,7 +47,7 @@ stages:
               mavenFeedAuthenticate: true
               mavenOptions: ' $(mavenOptions)'
               javaHomeOption: 'JDKVersion'
-              jdkVersionOption: '1.11'
+              jdkVersionOption: '1.17'
               jdkArchitectureOption: 'x64'
               publishJUnitResults: true
               testResultsFiles: '**/*/TEST*-*.xml'
@@ -67,11 +67,11 @@ stages:
               trivy -v
             displayName: 'Download and install Trivy'
           - task: CmdLine@2
-            displayName: "Run trivy scan on snap2snomed"
+            displayName: "Run trivy scan on snapagogo"
             inputs:
               script: |
-                trivy image --exit-code 0 --severity LOW,MEDIUM $(dockerRegistry)/$(registryPath):$(Build.BuildNumber)
-                trivy image --exit-code 1 --severity HIGH,CRITICAL $(dockerRegistry)/$(registryPath):$(Build.BuildNumber)
+                trivy image --exit-code 0 --severity LOW,MEDIUM --security-checks vuln --timeout 15m $(dockerRegistry)/$(registryPath):$(Build.BuildNumber)
+                trivy image --exit-code 1 --severity HIGH,CRITICAL --security-checks vuln --timeout 15m $(dockerRegistry)/$(registryPath):$(Build.BuildNumber)
           - script: |
               export VERSION=`git rev-parse --short=7 HEAD` && \
               yarn exec sentry-cli releases new $VERSION && \
@@ -104,10 +104,10 @@ stages:
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: '$(System.DefaultWorkingDirectory)/ui/target/site'
-              artifact: 'snap2snomed-ui'
+              artifact: 'snapagogo-ui'
               publishLocation: 'pipeline'
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: '$(System.DefaultWorkingDirectory)/terraform'
-              artifact: 'snap2snomed-terraform'
+              artifact: 'snapagogo-terraform'
               publishLocation: 'pipeline'

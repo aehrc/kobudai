@@ -1,7 +1,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <a href="https://github.com/aehrc/kobudai">
+  <a href="https://github.com/aehrc/snapagogo">
     <img src="images/logo.png" alt="Logo">
   </a>
 
@@ -12,6 +12,12 @@
 
 ## About The Project
 This project is a mapping tool designed to allow users to collaboratively create and maintain simple maps to FHIR CodeSystems.
+<<<<<<< HEAD
+=======
+
+It is a fork from Snap2Snomed for which the following is the current vision of that project
+<img src="images/vision.png" alt="Vision">
+>>>>>>> upstream/main
 
 ### Built With
 
@@ -33,7 +39,7 @@ This is an example of how to list things you need to use the software and how to
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/aehrc/kobudai.git
+   git clone https://github.com/aehrc/snapagogo.git
    ```
 2. Run the Maven build
    ```sh
@@ -65,7 +71,7 @@ Distributed under the Apache 2.0 License. See `LICENSE` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Project Link: [https://github.com/aehrc/kobudai](https://github.com/aehrc/kobudai)
+Project Link: [https://github.com/aehrc/snapagogo](https://github.com/aehrc/snapagogo)
 
 
 
