@@ -26,7 +26,6 @@ import {
   DeleteTaskSuccess,
   LoadAllTasksSuccess,
   LoadTasksFailure,
-  LoadTasksForMap,
   LoadTasksSuccess,
   TaskActions,
   TaskActionTypes,

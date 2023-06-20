@@ -8,7 +8,7 @@
             <i>{{'MAP.VERSION' | translate}}</i> {{mapping.source.version}}
           </li>
           <li class="one-line-ellipse"><b>{{'MAP.TARGET' | translate}}:</b>&nbsp;
-            <app-source-version [version]="mapping.toVersion"></app-source-version>
+            <app-target-version [system]="mapping.toSystem" [version]="mapping.toVersion"></app-target-version>
           </li>
           <li class="one-line-ellipse"><b>{{'MAP.SCOPE' | translate}}:</b>&nbsp;
             {{mapping.toScope}}

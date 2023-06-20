@@ -62,6 +62,10 @@ fetch(`/assets/config.json`)
           .catch((err) => console.error(err));
       })
       .catch((err) => {
+        const errorlogo = document.getElementById('errorlogo');
+        if (errorlogo) {
+          errorlogo.setAttribute('src', snapConfig.logo);
+        }
         const error = document.getElementById('backenderror');
         if (error) {
           error.style.display = 'block';

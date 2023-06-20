@@ -19,7 +19,7 @@ import {TranslateService} from '@ngx-translate/core';
 import {SnomedUtils} from '../_utils/snomed_utils';
 
 @Component({
-  selector: 'app-source-version',
+  selector: 'app-target-version',
   templateUrl: './target-version.component.html',
   styleUrls: ['./target-version.component.css']
 })
@@ -27,6 +27,12 @@ export class TargetVersionComponent {
   @Input() system = 'http://snomed.info/sct';
 
   @Input() set version(v: string | null | undefined) {
+    if ('http://snomed.info/sct' !== this.system) {
+     this.label = this.system;
+      this.effectiveTime = v || 'Latest available';
+      return;
+    }
+
     v = v ?? 'http://snomed.info/sct?fhir_vs';
 
     const {experimental, edition, effectiveTime} = SnomedUtils.parserVersionUri(v);

@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
+import {APP_CONFIG, AppConfig} from '../app.config';
 import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
@@ -23,8 +24,12 @@ import {MatDialogRef} from "@angular/material/dialog";
   styleUrls: ['./feedback-widget.component.css']
 })
 export class FeedbackWidgetComponent implements OnInit {
+  feedbackUrl: string;
 
-  constructor(public dialogRef: MatDialogRef<FeedbackWidgetComponent>) { }
+  constructor(@Inject(APP_CONFIG) private config: AppConfig,
+              public dialogRef: MatDialogRef<FeedbackWidgetComponent>) {
+    this.feedbackUrl = config.feedbackUrl;
+  }
 
   ngOnInit(): void {
   }

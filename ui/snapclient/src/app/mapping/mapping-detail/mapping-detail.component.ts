@@ -22,8 +22,6 @@ import {Task, TaskType} from '../../_models/task';
 import {ErrorInfo} from '../../errormessage/errormessage.component';
 import {MapService} from '../../_services/map.service';
 import {
-  AdditionalColumn,
-  authorStatuses,
   MapRow,
   MapRowStatus,
   mapRowStatusToIconName,

@@ -12,9 +12,11 @@
   <mat-divider class="divider"></mat-divider>
   <app-errormessage [error]="error"></app-errormessage>
   <div>
-    <app-concept-search #searchComponent [scope]="data.map?.toScope || data.task?.mapping?.toScope || ''"
-                        [version]="data.map?.toVersion || data.task?.mapping?.toVersion || ''"
-                        *ngIf="((data.task &&  data.task.type !== 'REVIEW') || data.task === null) && !clearTarget && noMapValue == null && changedStatus == null">
+    <app-concept-search #searchComponent
+      [scope]="data.map?.toScope || data.task?.mapping?.toScope || ''"
+      [system]="data.map?.toSystem || data.task?.mapping?.toSystem || ''"
+      [version]="data.map?.toVersion || data.task?.mapping?.toVersion || ''"
+      *ngIf="((data.task &&  data.task.type !== 'REVIEW') || data.task === null) && !clearTarget && noMapValue == null && changedStatus == null">
       <span class="search-title">{{'BULKCHANGEDIALOG.SELECTED_TARGET' | translate}} {{currentSelection?.display || 'BULKCHANGEDIALOG.NO_SELECTED_TARGET' | translate}}</span>
     </app-concept-search>
     <mat-form-field appearance="fill" class="field-full-width" id="relationships"

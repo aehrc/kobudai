@@ -43,12 +43,12 @@
     </dependencies>
   </dependencyManagement>
 
-  <groupId>org.snomed.snap2snomed</groupId>
+  <groupId>au.csiro</groupId>
   <artifactId>snapagogo</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>snapagogo</name>
+  <name>Snapagogo</name>
   <description>A tool for mapping clinical terminology concepts to SNOMED CT.</description>
 
   <modules>

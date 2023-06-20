@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {R4} from '@ahryman40k/ts-fhir-types';
+import {ValueSetExpansionContains} from 'fhir/r4';
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Store} from '@ngrx/store';
@@ -35,6 +35,7 @@ import {SelectionService} from '../_services/selection.service';
 })
 export class ConceptSearchComponent implements OnInit, OnDestroy {
   @Input() active: boolean = true;
+  @Input() system: string;
   @Input() version: string;
   @Input() scope: string;
   @Input() autosuggest?: string;
@@ -56,8 +57,9 @@ export class ConceptSearchComponent implements OnInit, OnDestroy {
     public translate: TranslateService,
     private selectionService: SelectionService,
     private store: Store<IAppState>) {
-    this.version = 'http://snomed.info/sct';
-    this.scope = '*';
+      this.system = '';
+      this.version = '';
+      this.scope = '';
   }
 
   ngOnInit(): void {
@@ -103,6 +105,7 @@ export class ConceptSearchComponent implements OnInit, OnDestroy {
       if (value) {
         self.store.dispatch(new FindConcepts({
           text: value,
+          system: self.system,
           version: self.version,
           scope: self.scope,
           activeOnly: self.activeOnly,
@@ -125,7 +128,7 @@ export class ConceptSearchComponent implements OnInit, OnDestroy {
     this.search(this.searchControl.value);
   }
 
-  private toMatch(concept: R4.IValueSet_Contains): Match {
+  private toMatch(concept: ValueSetExpansionContains): Match {
     const allFsns = concept.designation?.filter(d => d.use?.code === '900000000000003001');
     const browserFsn = allFsns?.find(d => d.language === this.translate.getBrowserLang())?.value;
     const fsn = browserFsn ?? allFsns?.find(() => true)?.value ?? concept.display;

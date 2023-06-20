@@ -19,10 +19,9 @@ import {HttpClient} from '@angular/common/http';
 import {Observable, of} from 'rxjs';
 import {ServiceUtils} from '../_utils/service_utils';
 import {APP_CONFIG, AppConfig} from '../app.config';
-import {R4} from '@ahryman40k/ts-fhir-types';
+import {Bundle, OperationOutcome, Parameters, ParametersParameter, ValueSet, ValueSetExpansionContains} from 'fhir/r4';
 import {catchError, map, mergeMap} from 'rxjs/operators';
 import {ErrorDetail} from '../_models/error_detail';
-import {BundleTypeKind, Bundle_RequestMethodKind} from '@ahryman40k/ts-fhir-types/lib/R4';
 import {Coding, Match} from '../store/fhir-feature/fhir.reducer';
 import {ConceptNode} from '@csiro/shrimp-hierarchy-view';
 
@@ -30,11 +29,16 @@ export const SEQUENCE = 'http://ontoserver.csiro.au/fhir/ConceptMap/automapstrat
 export const DEFAULT = 'http://ontoserver.csiro.au/fhir/ConceptMap/automapstrategy-default';
 export const MML = 'http://ontoserver.csiro.au/fhir/ConceptMap/automapstrategy-MML';
 
+// TODO rename 'edition' field to 'name' (and remove 'uri'?)
 export interface Release {
+  allCodes: string;
   edition: string; // edition is often a country
+  system: string;
   version: string; // version is often a date
   uri: string;
 }
+
+const isSnomed = (url: string) => 'http://snomed.info/sct' === url;
 
 @Injectable({
   providedIn: 'root'
@@ -52,8 +56,10 @@ export class FhirService {
   }
 
   findOutliers(toSystem: string, toVersion: string, targets: string[], toScope: string) {
-    const valueSet: R4.IValueSet = {
+    const url = `${this.config.fhirBaseUrl}/ValueSet/$expand`;
+    const valueSet: ValueSet = {
       resourceType: 'ValueSet',
+      status: 'active',
       compose: {
         include: [{
           system: toSystem,
@@ -61,26 +67,33 @@ export class FhirService {
           concept: targets.map(code => ({code: code}))
         }],
         exclude: [{
-          valueSet: [FhirService.toValueSet(toVersion, `(${toScope}){{C active=true}}`)],
+          system: toSystem,
+          version: toVersion,
+          filter: [{
+            property: 'inactive', op: '=', value: 'false'
+          }],
+          valueSet: [toScope],
         }]
       }
     };
-
-    const url = `${this.config.fhirBaseUrl}/ValueSet/$expand`;
-    const params = {
-      'count': 1000000,
-    };
+    const params: Parameters = {
+      resourceType: 'Parameters',
+      parameter: [{
+        name: 'valueSet', resource: valueSet
+      }, {
+        name: 'count', valueInteger: 1000000
+      }]
+    }
     const options = ServiceUtils.getHTTPHeaders();
     options.headers = options.headers
       .set('Accept', ['application/fhir+json', 'application/json']);
-    options.params = {...options.params, ...params};
-    return this.http.post<R4.IValueSet>(url, valueSet, options);
+    return this.http.post<ValueSet>(url, params, options);
   }
 
-  fetchVersions(): Observable<R4.IBundle> {
+  fetchVersions(system: string): Observable<Bundle> {
     const url = `${this.config.fhirBaseUrl}/CodeSystem`;
     const params = {
-      'url': 'http://snomed.info/sct',
+      'url': system,
       '_summary': 'true',
       '_sort': 'title,-version',
     };
@@ -88,20 +101,21 @@ export class FhirService {
     options.headers = options.headers
       .set('Accept', ['application/fhir+json', 'application/json']);
     options.params = {...options.params, ...params};
-    return this.http.get<R4.IBundle>(url, options);
+    return this.http.get<Bundle>(url, options);
   }
 
-  autoSuggest(text: string, version: string, scope: string, strategy: string, activeOnly: boolean = true, count: number = 5, forceEnglish: boolean = false): Observable<Match[]> {
+  autoSuggest(text: string, system: string, version: string, scope: string, strategy: string, activeOnly: boolean = true, count: number = 5, forceEnglish: boolean = false): Observable<Match[]> {
     if (this.isOntoserver) {
       const isMatch = (match: Match | null): match is Match => !!match;
-      const ecl = activeOnly ? `(${scope}){{C active=true}}` : scope;
 
       const url = `${this.config.fhirBaseUrl}/ConceptMap/$translate`;
       const params = {
         'code': text,
         'system': 'http://ontoserver.csiro.au/fhir/CodeSystem/codesystem-terms',
         'url': strategy,
-        'target': FhirService.toValueSet(version, ecl),
+        'target': scope,
+        'targetSystem': system,
+        'targetVersion': version,
       };
       const options = ServiceUtils.getHTTPHeaders();
       options.headers = options.headers
@@ -110,7 +124,7 @@ export class FhirService {
         options.headers = options.headers.append('Accept-Language', 'en-US');
       }
       options.params = {...options.params, ...params};
-      return this.http.get<R4.IParameters>(url, options).pipe(
+      return this.http.get<Parameters>(url, options).pipe(
         map(parameters => {
           return (parameters?.parameter ?? [])
             .filter(p => 'match' === p.name)
@@ -119,7 +133,7 @@ export class FhirService {
         })
       );
     } else {
-      return this.findConcepts(text, version, scope, activeOnly, count).pipe(
+      return this.findConcepts(text, system, version, scope, activeOnly, count).pipe(
         map(valueset => {
           return valueset.expansion?.contains?.slice(0, count).map(entry => {
             return {
@@ -136,11 +150,13 @@ export class FhirService {
     }
   }
 
-  findConcepts(text: string, version: string, scope: string, activeOnly: boolean = true, count: number = 100): Observable<R4.IValueSet> {
+  findConcepts(text: string, system: string, version: string, scope: string, activeOnly: boolean = true, count: number = 100): Observable<ValueSet> {
     const url = `${this.config.fhirBaseUrl}/ValueSet/$expand`;
+    const systemVersion = `${system}|${version}`;
     const params = {
       'filter': text,
-      'url': FhirService.toValueSet(version, scope),
+      'url': scope,
+      'system-version': systemVersion,
       'includeDesignations': true,
       'count': count,
       'activeOnly': activeOnly,
@@ -149,7 +165,7 @@ export class FhirService {
     options.headers = options.headers
       .set('Accept', ['application/fhir+json', 'application/json']);
     options.params = {...options.params, ...params};
-    return this.http.get<R4.IValueSet>(url, options);
+    return this.http.get<ValueSet>(url, options);
   }
 
   static conceptNodeId(code: string, system: string): string {
@@ -159,7 +175,7 @@ export class FhirService {
   conceptHierarchy(code: string, system: string, version: string): Observable<ConceptNode<Coding>[]> {
     const toId = FhirService.conceptNodeId;
 
-    const expansionToNodes = (valueset: R4.IValueSet): ConceptNode<Coding>[] => {
+    const expansionToNodes = (valueset: ValueSet): ConceptNode<Coding>[] => {
       if (!valueset.expansion) throw 'No expansion in search result';
       const expansion = valueset.expansion;
 
@@ -175,8 +191,8 @@ export class FhirService {
         });
 
       return expansion.contains
-        ?.filter((entry: R4.IValueSet_Contains) => entry.code && entry.system && entry.display)
-        .map((entry: R4.IValueSet_Contains) => {
+        ?.filter((entry: ValueSetExpansionContains) => entry.code && entry.system && entry.display)
+        .map((entry: ValueSetExpansionContains) => {
           const directParents: string[] = [];
           const payload: Coding = {
               code: entry.code,
@@ -217,71 +233,115 @@ export class FhirService {
         }) ?? [];
     };
 
-    const url = `${this.config.fhirBaseUrl}/ValueSet/$expand`;
-    const ecl = `>>(${code}) OR <!(${code})`;
-    const params = {
-      'url': FhirService.toValueSet(version, ecl),
-      // 'includeDesignations': true,
-      'property': ['parent', 'sufficientlyDefined'],
-      'count': 1000,
+    const processNodes = (nodes: ConceptNode<Coding>[]) => {
+      if (this.isOntoserver) {
+        return of(nodes);
+      } else {
+        const nodeMap: {[key: string]: ConceptNode<Coding>} = {};
+        nodes.forEach(node => {
+          nodeMap[node.id] = node;
+        });
+        const id = toId(system, code);
+        const node = nodeMap[id];
+        const directParents = nodeMap[id].directParents ?? [];
+        const retainedNodes: ConceptNode<Coding>[] = [node];
+
+        return this.lookupConcept(code, system, version).pipe(
+          map(parameters => {
+            parameters.parameter?.map(param => {
+              if ('property' === param.name) {
+                let code: string | undefined;
+                let value: string | undefined;
+                param.part?.forEach(part => {
+                  if ('code' === part.name) {
+                    code = part.valueString;
+                  } else if ('value' === part.name) {
+                    value = part.valueCode;
+                  }
+                });
+                if ('parent' === code && value) {
+                  const parentId = toId(system, value);
+                  directParents.push(parentId);
+                  retainedNodes.push(nodeMap[parentId]);
+                } else if ('child' === code && value) {
+                  const childId = toId(system, value);
+                  (nodeMap[childId].directParents ?? []).push(node.id);
+                  retainedNodes.push(nodeMap[childId]);
+                }
+              }
+            });
+
+            return retainedNodes;
+          })
+        );
+      }
     };
+
+    const url = `${this.config.fhirBaseUrl}/ValueSet/$expand`;
     const options = ServiceUtils.getHTTPHeaders();
     options.headers = options.headers
       .set('Accept', ['application/fhir+json', 'application/json']);
-    options.params = {...options.params, ...params};
-    return this.http.get<R4.IValueSet>(url, options).pipe(
-      map(expansionToNodes),
-      mergeMap(nodes => {
-        if (this.isOntoserver) {
-          return of(nodes);
-        } else {
-          const nodeMap: {[key: string]: ConceptNode<Coding>} = {};
-          nodes.forEach(node => {
-            nodeMap[node.id] = node;
-          });
-          const id = toId(system, code);
-          const node = nodeMap[id];
-          const directParents = nodeMap[id].directParents ?? [];
-          const retainedNodes: ConceptNode<Coding>[] = [node];
 
-          return this.lookupConcept(code, system, version).pipe(
-            map(parameters => {
-              parameters.parameter?.map(param => {
-                if ('property' === param.name) {
-                  let code: string | undefined;
-                  let value: string | undefined;
-                  param.part?.forEach(part => {
-                    if ('code' === part.name) {
-                      code = part.valueString;
-                    } else if ('value' === part.name) {
-                      value = part.valueCode;
-                    }
-                  });
-                  if ('parent' === code && value) {
-                    const parentId = toId(system, value);
-                    directParents.push(parentId);
-                    retainedNodes.push(nodeMap[parentId]);
-                  } else if ('child' === code && value) {
-                    const childId = toId(system, value);
-                    (nodeMap[childId].directParents ?? []).push(node.id);
-                    retainedNodes.push(nodeMap[childId]);
-                  }
-                }
-              });
+    if (isSnomed(system)) { // Use GET for SNOMED; it is faster and cacheable
+      const ecl = `>>(${code}) OR <!(${code})`;
+      const params = {
+        'url': FhirService.toValueSet(version, ecl),
+        // 'includeDesignations': true,
+        'property': ['parent', 'sufficientlyDefined'],
+        'count': 1000,
+      };
+      options.params = { ...options.params, ...params };
 
-              return retainedNodes;
-            })
-          );
+      return this.http.get<ValueSet>(url, options).pipe(
+        map(expansionToNodes),
+        mergeMap(processNodes)
+      );
+    } else {
+      const valueSet: ValueSet = {
+        resourceType: 'ValueSet',
+        status: 'active',
+        compose: {
+          include: [{
+            system: system,
+            version: version,
+            filter: [{
+              property: 'parent', op: '=', value: code
+            }]
+          }, {
+            system: system,
+            version: version,
+            filter: [{
+              property: 'concept', op: 'generalizes', value: code
+            }]
+          }]
         }
-      })
-    );
+      };
+      const params: Parameters = {
+        resourceType: 'Parameters',
+        parameter: [{
+          name: 'valueSet', resource: valueSet
+        }, {
+          name: 'property', valueString: 'parent'
+        }, {
+          name: 'property', valueString: 'sufficientlyDefined'
+        }, {
+          name: 'count', valueInteger: 1000
+        }]
+      }
+
+      return this.http.post<ValueSet>(url, params, options).pipe(
+        map(expansionToNodes),
+        mergeMap(processNodes)
+      );
+    }
+
   }
 
-  hierarchyProperties(expansion: R4.IValueSet, version: string): Observable<R4.IBundle> {
+  hierarchyProperties(expansion: ValueSet, version: string): Observable<Bundle> {
     const url = `${this.config.fhirBaseUrl}`;
-    const body: R4.IBundle = {
+    const body: Bundle = {
       resourceType: 'Bundle',
-      type: BundleTypeKind._batch,
+      type: 'batch',
       entry: expansion.expansion?.contains?.map(item => {
         if (!item.system || !item.code) throw new Error("Incomplete data in ValueSet expansion");
 
@@ -290,7 +350,7 @@ export class FhirService {
         const system_version = encodeURIComponent(item.version ?? version);
         return {
           request: {
-            method: Bundle_RequestMethodKind._get,
+            method: 'GET',
             url: `CodeSystem/$lookup?system=${system}&code=${code}&version=${system_version}`
           }
         }
@@ -299,12 +359,12 @@ export class FhirService {
     const options = ServiceUtils.getHTTPHeaders();
     options.headers = options.headers
       .set('Accept', ['application/fhir+json', 'application/json']);
-    return this.http.post<R4.IBundle>(url, body, options);
+    return this.http.post<Bundle>(url, body, options);
   }
 
   getEnglishFsn(code: string, system: string, version: string, properties: string[] = []): Observable<string> {
     return this.lookupConcept(code, system, version, properties).pipe(
-      map((parameters: R4.IParameters) => {
+      map((parameters: Parameters) => {
         return parameters.parameter?.filter(parameter => {
           return parameter.name == 'designation' && parameter.part?.some(param => param.name == 'use' && param.valueCoding?.code == '900000000000003001');
         }).map(fsns => ({
@@ -322,7 +382,7 @@ export class FhirService {
     );
   }
 
-  lookupConcept(code: string, system: string, version: string, properties: string[] = []): Observable<R4.IParameters> {
+  lookupConcept(code: string, system: string, version: string, properties: string[] = []): Observable<Parameters> {
     const url = `${this.config.fhirBaseUrl}/CodeSystem/$lookup`;
     const params: any = {
       'code': code,
@@ -336,7 +396,7 @@ export class FhirService {
     options.headers = options.headers
       .set('Accept', ['application/fhir+json', 'application/json']);
     options.params = {...options.params, ...params};
-    return this.http.get<R4.IParameters>(url, options);
+    return this.http.get<Parameters>(url, options);
   }
 
   private static toValueSet(version: string, ecl: string): string {
@@ -355,7 +415,7 @@ export class FhirService {
       .set('Accept', ['application/fhir+json', 'application/json']);
 
     options.params = {...options.params, ...params};
-    return this.http.get<R4.IValueSet | R4.IOperationOutcome>(url, options)
+    return this.http.get<ValueSet | OperationOutcome>(url, options)
       .pipe(
         map((res) => {
           if (res.resourceType === 'ValueSet') {
@@ -367,7 +427,7 @@ export class FhirService {
       );
   }
 
-  private static ooToErrorDetail(id: string, oo: R4.IOperationOutcome): ErrorDetail {
+  private static ooToErrorDetail(id: string, oo: OperationOutcome): ErrorDetail {
     const detail: ErrorDetail = {
       type: id,
       detail: '',
@@ -381,7 +441,7 @@ export class FhirService {
     return detail;
   }
 
-  private static paramToMatch(param: R4.IParameters_Parameter): Match | null {
+  private static paramToMatch(param: ParametersParameter): Match | null {
     const coding = param.part?.find(p => 'concept' === p.name)?.valueCoding;
     if (coding) {
       const semanticTag = coding?.extension?.find(ex => 'http://snomed.info/field/semanticTag' === ex.url)?.valueString;

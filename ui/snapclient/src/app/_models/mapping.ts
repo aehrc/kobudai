@@ -28,8 +28,9 @@ export class Mapping {
     this.project = new Project();
     this.mapVersion = '';
     this.source = new Source();
+    this.toSystem = 'http://snomed.info/sct';  // Default "to snomed" for the moment
     this.toVersion = null;
-    this.toScope = '*'; // ECL for "all SNOMED concepts" - cannot use 'ANY' because SnowStorm
+    this.toScope = 'http://snomed.info/sct?fhir_vs=ecl/*'; // ECL for "all SNOMED concepts" - cannot use 'ANY' because SnowStorm
     this.created = new Date();
     this.modified = new Date();
   }
@@ -38,7 +39,7 @@ export class Mapping {
   project: Project;
   mapVersion: string;
   source: Source;
-  toSystem = 'http://snomed.info/sct';  // Always "to snomed" for the moment
+  toSystem: string;
   toVersion: string | null;
   toScope: string;
   created: Date;

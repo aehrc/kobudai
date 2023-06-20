@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {R4} from '@ahryman40k/ts-fhir-types';
+import {ParametersParameter} from 'fhir/r4';
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Store} from '@ngrx/store';
 import {TranslateService} from '@ngx-translate/core';
@@ -33,8 +33,9 @@ import {SEQUENCE as DEFAULT_SEQUENCE} from 'src/app/_services/fhir.service';
 })
 export class ConceptAutosuggestComponent implements OnInit, OnDestroy {
 
-  @Input() version = 'http://snomed.info/sct';
-  @Input() scope = '*';
+  @Input() system = '';
+  @Input() version = '';
+  @Input() scope = '';
   @Input() strategy: string = DEFAULT_SEQUENCE;
 
   @Input() set search(value: string) {
@@ -84,6 +85,7 @@ export class ConceptAutosuggestComponent implements OnInit, OnDestroy {
     if (this._search) {
       this.store.dispatch(new AutoSuggest({
         text: this._search,
+        system: this.system,
         version: this.version,
         scope: this.scope,
         strategy: this.strategy,
@@ -94,7 +96,7 @@ export class ConceptAutosuggestComponent implements OnInit, OnDestroy {
     }
   }
 
-  private toMatch(param: R4.IParameters_Parameter): Match | null {
+  private toMatch(param: ParametersParameter): Match | null {
     const coding = param.part?.find(p => 'concept' === p.name)?.valueCoding;
     if (coding) {
       const semanticTag = coding?.extension?.find(ex => 'http://snomed.info/field/semanticTag' === ex.url)?.valueString;

@@ -39,8 +39,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FhirService {
 
-    private static final String DEFAULT_CODE_SYSTEM = "http://snomed.info/sct";
-
     @Autowired
     TerminologyProvider terminologyProvider;
 
@@ -48,7 +46,7 @@ public class FhirService {
     Snap2snomedConfiguration configuration;
 
     public ValidationResult validateValueSetComposition(
-            Set<String> codes, String codeSystemVersion, String scope) throws IOException {
+            Set<String> codes, String codeSystem, String codeSystemVersion, String scope) throws IOException {
         Set<String> invalid = new HashSet<>();
         if (codes != null) {
             for (String code : codes) {
@@ -69,14 +67,11 @@ public class FhirService {
               Lists.partition(conceptReferenceComponents, configuration.getDefaultTerminologyServer().getExpandBatchSize().intValue());
       String reqScope = scope;
       if (reqScope != null) {
-        if (!reqScope.matches("^http.*")) {
-            reqScope = codeSystemVersion + "?fhir_vs=ecl/" + reqScope;
-        }
         reqScope = reqScope.replaceAll("\\|", URLEncoder.encode("|", Charset.defaultCharset()));
         String finalReqScope = reqScope;
         partitionedConceptReferenceComponents.forEach(batch -> {
           ValueSet.ConceptSetComponent batchedConceptSetComponent = new ValueSet.ConceptSetComponent();
-          batchedConceptSetComponent.setSystem(DEFAULT_CODE_SYSTEM);
+          batchedConceptSetComponent.setSystem(codeSystem);
           batchedConceptSetComponent.setVersion(codeSystemVersion);
           batchedConceptSetComponent.setValueSet(List.of(new CanonicalType(finalReqScope)));
           batch.forEach(batchedConceptSetComponent::addConcept);

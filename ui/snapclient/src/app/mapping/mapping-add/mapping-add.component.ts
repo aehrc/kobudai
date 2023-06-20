@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Inject, Injectable, Input, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
+import {APP_CONFIG, AppConfig} from '../../app.config';
 import {Store} from '@ngrx/store';
 import {IAppState} from '../../store/app.state';
 import {
@@ -64,6 +65,7 @@ export class MappingAddComponent implements OnInit {
   editionVersions: Release[] = []; // versions of the selected edition (often a country)
   existingMapVersions: string[] | null = null;
   loading = false;
+  eclScope = '*';
   selectedEdition : string = "";
   @ViewChild('myForm') form: NgForm | undefined;
   mappingFile: ImportMappingFileParams | undefined | null;
@@ -118,6 +120,7 @@ export class MappingAddComponent implements OnInit {
   @Output() closed = new EventEmitter();
 
   constructor(
+    @Inject(APP_CONFIG) public config: AppConfig,
     private elRef: ElementRef,
     private store: Store<IAppState>,
     private translate: TranslateService,
@@ -128,7 +131,7 @@ export class MappingAddComponent implements OnInit {
   ngOnInit(): void {
     const self = this;
     self.error = {};
-    self.loadReleases();
+    self.loadReleases(self.mappingModel.toSystem);
     self.store.dispatch(new LoadSources());
     self.load();
   }
@@ -177,6 +180,17 @@ export class MappingAddComponent implements OnInit {
       data => {
         this.editionToVersionsMap = data;
         this.editionToVersionsMapLoaded = true;
+        this.selectedEdition = '';
+        if (this.editionToVersionsMap?.size === 1) {
+          for (let key of this.editionToVersionsMap?.keys()||[]) {
+            if ('' === this.selectedEdition) {
+              this.selectedEdition = key;
+            }
+          }
+        }
+        if (this.editionToVersionsMap?.keys) {
+          this.changeEdition(this.selectedEdition);
+        }
       },
       error => this.translate.get('ERROR.LOAD_VERSIONS').subscribe((res) => self.createOrAppendError(res))
     );
@@ -264,8 +278,8 @@ export class MappingAddComponent implements OnInit {
       });
   }
 
-  loadReleases(): void {
-    this.store.dispatch(new LoadReleases());
+  loadReleases(system: string): void {
+    this.store.dispatch(new LoadReleases({system: system}));
   }
 
   getFormModeTextForTranslation(): string {
@@ -313,16 +327,28 @@ export class MappingAddComponent implements OnInit {
     }
   }
 
-  changeEdition($event: MatSelectChange) {
+  changeSystem($event: MatSelectChange) {
+    this.mappingModel.toScope = 
     this.mappingModel.toVersion = ""; // reset
-    let versions = this.editionToVersionsMap?.get($event.value);
+    this.loadReleases(this.mappingModel.toSystem);
+  }
+
+ changeEdition(edition: string) {
+    this.editionVersions = [];
+    this.mappingModel.toVersion = ""; // reset
+    let versions = this.editionToVersionsMap?.get(edition);
     if (versions) {
       this.editionVersions = versions;
       // select the most recent (or only, if just 1) version
       this.mappingModel.toVersion = this.editionVersions[0].uri;
+      this.mappingModel.toScope = this.editionVersions[0].allCodes;
     }
   }
 
+  changeECL($event: any) {
+    this.mappingModel.toScope = 'http://snomed.info/sct?fhir_vs=ecl/' + encodeURIComponent(this.eclScope.replace(/\s+/g, ' '));
+  }
+    
   deleteMap(): void {
     if (!this.warnDelete) {
       this.warnDelete = true;

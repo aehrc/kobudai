@@ -2,15 +2,6 @@
 # yarn lockfile v1
 
 
-"@ahryman40k/ts-fhir-types@^4.0.36":
-  version "4.0.39"
-  resolved "https://registry.yarnpkg.com/@ahryman40k/ts-fhir-types/-/ts-fhir-types-4.0.39.tgz#7237d7e618518e772e569b2bcb35fdda958ad4ba"
-  integrity sha512-kguwevsphUZE4VMomTuDHa0HJDaYNKoEtFuZOqNRouqnQXAH5c/9YR9WexniF+EviWMY8qyHVz1/O6HamFBgmA==
-  dependencies:
-    fp-ts "^2.11.8"
-    io-ts "^2.2.16"
-    reflect-metadata "^0.1.13"
-
 "@ampproject/remapping@^2.1.0":
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.0.tgz#56c133824780de3174aed5ab6834f3026790154d"
@@ -1733,6 +1724,11 @@
     "@types/d3-timer" "*"
     "@types/d3-transition" "*"
     "@types/d3-zoom" "*"
+
+"@types/fhir@^0.0.35":
+  version "0.0.35"
+  resolved "https://registry.yarnpkg.com/@types/fhir/-/fhir-0.0.35.tgz#e598b99e6468fee556f0e78d398c13ad2571b1eb"
+  integrity sha512-y+VI3Y48xzZBM8AjXPq67EWbiY9VN4Cx5KzN8EplS0Zju8D2KahLXoK6P/PWlKyNTKvJBwemkHzJIocczLRkhQ==
 
 "@types/file-saver@^2.0.3":
   version "2.0.5"
@@ -4624,11 +4620,6 @@ forwarded@0.2.0:
   resolved "https://registry.yarnpkg.com/forwarded/-/forwarded-0.2.0.tgz#2269936428aad4c15c7ebe9779a84bf0b2a81811"
   integrity sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==
 
-fp-ts@^2.11.8:
-  version "2.12.1"
-  resolved "https://registry.yarnpkg.com/fp-ts/-/fp-ts-2.12.1.tgz#e389488bfd1507af06bd5965e97367edcd4fabad"
-  integrity sha512-oxvgqUYR6O9VkKXrxkJ0NOyU0FrE705MeqgBUMEPWyTu6Pwn768cJbHChw2XOBlgFLKfIHxjr2OOBFpv2mUGZw==
-
 fraction.js@^4.0.13:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/fraction.js/-/fraction.js-4.2.0.tgz#448e5109a313a3527f5a3ab2119ec4cf0e0e2950"
@@ -5277,11 +5268,6 @@ internal-ip@^4.3.0:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/internmap/-/internmap-2.0.3.tgz#6685f23755e43c524e251d29cbc97248e3061009"
   integrity sha512-5Hh7Y1wQbvY5ooGgPbDaL5iYLAPzMTUrjMulskHLH6wnv/A+1q5rgEaiuqEjB+oxGXIVZs1FF+R/KPN3ZSQYYg==
-
-io-ts@^2.2.16:
-  version "2.2.16"
-  resolved "https://registry.yarnpkg.com/io-ts/-/io-ts-2.2.16.tgz#597dffa03db1913fc318c9c6df6931cb4ed808b2"
-  integrity sha512-y5TTSa6VP6le0hhmIyN0dqEXkrZeJLeC5KApJq6VLci3UEKF80lZ+KuoUs02RhBxNWlrqSNxzfI7otLX1Euv8Q==
 
 ip-regex@^2.1.0:
   version "2.1.0"
@@ -7760,7 +7746,7 @@ readdirp@~3.6.0:
   dependencies:
     picomatch "^2.2.1"
 
-reflect-metadata@^0.1.13, reflect-metadata@^0.1.2:
+reflect-metadata@^0.1.2:
   version "0.1.13"
   resolved "https://registry.yarnpkg.com/reflect-metadata/-/reflect-metadata-0.1.13.tgz#67ae3ca57c972a2aa1642b10fe363fe32d49dc08"
   integrity sha512-Ts1Y/anZELhSsjMcU605fU9RE4Oi3p5ORujwbIKXfWa+0Zxs510Qrmrce5/Jowq3cHSZSJqBjypxmHarc+vEWg==

@@ -41,6 +41,7 @@ export class HomeComponent implements OnInit {
   error: ErrorInfo = {};
   @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger | undefined;
   title: string;
+  logo: string;
   isAdmin = false;
   termDialogRef: (null|MatDialogRef<AcceptTermsComponent>) = null;
 
@@ -50,6 +51,7 @@ export class HomeComponent implements OnInit {
               private store: Store<IAppState>,
               public dialog: MatDialog) {
     this.title = this.config.appName;
+    this.logo = this.config.logoUrl;
     this.isAdmin = this.authService.isAdmin();
   }
 

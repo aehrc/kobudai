@@ -277,6 +277,7 @@ function toMapping(mapDto: any, project?: Project): Mapping {
   mapping.mapVersion = mapDto.mapVersion;
   mapping.toVersion = mapDto.toVersion;
   mapping.toScope = mapDto.toScope;
+  mapping.toSystem = mapDto.toSystem;
 
   if (project) {
     mapping.project = project;

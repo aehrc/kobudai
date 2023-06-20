@@ -15,8 +15,8 @@
  */
 
 import {Component, Inject, OnInit} from '@angular/core';
+import {Title} from '@angular/platform-browser';
 import {AuthService} from './_services/auth.service';
-import {UserService} from './_services/user.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {IAppState} from './store/app.state';
@@ -34,6 +34,9 @@ import {ErrorInfo} from './errormessage/errormessage.component';
 export class AppComponent implements OnInit {
   static translator: TranslateService;
   title: string;
+  summary: string;
+  logo: string;
+  bannerLogo: string;
   isAuthenticated: boolean;
   isLoading: boolean;
   hasError = false;
@@ -44,13 +47,16 @@ export class AppComponent implements OnInit {
   userRegistrationUrl: string | null = null;
 
   constructor(@Inject(APP_CONFIG) private config: AppConfig,
+              private titleService: Title,
               private authService: AuthService,
-              private userService: UserService,
               private store: Store<IAppState>,
               public router: Router,
               private route: ActivatedRoute,
               public translate: TranslateService) {
     this.title = this.config.appName;
+    this.summary = this.config.appSummary;
+    this.logo = this.config.logoUrl;
+    this.bannerLogo = this.config.bannerLogoUrl;
     this.isAuthenticated = false;
     this.isLoading = false;
     this.registrationText = this.config.registrationText;
@@ -59,6 +65,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.titleService.setTitle(this.title);
     this.setupTranslator();
     this.store.select(selectAuthState).subscribe((state) => {
       this.isAuthenticated = state.isAuthenticated;

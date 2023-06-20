@@ -73,8 +73,12 @@
     <div class="container-panels" *ngIf="task && source">
       <div class="container-row">
         <div class="search-view card-col">
-          <app-concept-search [scope]="task.mapping?.toScope || ''" [version]="task.mapping?.toVersion || ''"
-                              [initial]="source.display" [autosuggest]="source.display"
+          <app-concept-search
+            [scope]="task.mapping?.toScope || ''"
+            [system]="task.mapping?.toSystem || 'XXX'"
+            [version]="task.mapping?.toVersion || ''"
+            [initial]="source.display"
+            [autosuggest]="source.display"
           >
             <span class="search-title">{{'MAP.SEARCH_TARGET' | translate}}</span>
           </app-concept-search>

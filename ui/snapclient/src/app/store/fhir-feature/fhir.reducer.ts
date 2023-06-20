@@ -16,7 +16,7 @@
 
 import {FhirActions, FhirActionTypes} from './fhir.actions';
 import {Release} from '../../_services/fhir.service';
-import {R4} from '@ahryman40k/ts-fhir-types';
+import {ValueSetExpansion} from 'fhir/r4';
 import {Properties} from './fhir.effects';
 import {ConceptNode} from '@csiro/shrimp-hierarchy-view';
 
@@ -39,7 +39,7 @@ export interface Match {
 
 export interface IFhirState {
   editionToVersionsMap : Map<string, Release[]> | undefined;
-  matches?: R4.IValueSet_Expansion;
+  matches?: ValueSetExpansion;
   nodes: ConceptNode<Coding>[];
   suggests?: Match[];
   properties?: Properties;
@@ -48,7 +48,7 @@ export interface IFhirState {
 }
 
 export const initialFhirState: IFhirState = {
-  editionToVersionsMap: new Map(),
+  editionToVersionsMap: new Map<string, Release[]>(),
   nodes: [],
   errorMessage: null
 };

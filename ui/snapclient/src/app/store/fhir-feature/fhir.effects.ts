@@ -19,7 +19,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs/internal/observable/of';
 import { FhirService } from '../../_services/fhir.service';
-import { R4 } from '@ahryman40k/ts-fhir-types';
+import { CodeSystem, Parameters } from 'fhir/r4';
 import {
   LoadReleasesSuccess,
   LoadReleasesFailure,
@@ -37,11 +37,9 @@ import {
   LookupModuleFailure
 } from './fhir.actions';
 
-import { Release } from '../../_services/fhir.service';
-import {Match} from './fhir.reducer';
+import {Release} from '../../_services/fhir.service';
 import {TranslateService} from '@ngx-translate/core';
 import {SnomedUtils} from 'src/app/_utils/snomed_utils';
-import { ObservableInput } from 'rxjs';
 
 export interface Properties {
   [key: string]: any[]
@@ -52,36 +50,48 @@ export class FhirEffects {
 
   loadReleases$ = createEffect(() => this.actions$.pipe(
     ofType(FhirActionTypes.LOAD_RELEASES),
-    switchMap((action) => this.fhirService.fetchVersions().pipe(
+    map(action => action.payload),
+    switchMap((action) => this.fhirService.fetchVersions(action.system).pipe(
       map(bundle => (bundle.entry ?? [])),
       map(entries => {
         return entries
-          .map(entry => entry.resource as R4.ICodeSystem)
-          .filter(res => res.version)
+          .map(entry => entry.resource as CodeSystem)
+          .filter(res => res.version && res.valueSet)
           .map(res => {
+            const allCodes = res.valueSet;
             const ver = res.version ?? '';
             const edition = SnomedUtils.parserVersionUri(ver).edition;
             let label = res.title;
-            this.translate.get(`EDITION.${edition}`).subscribe(msg => { label = msg; });
+            if (label && label?.indexOf(ver) > 0) {
+              label = label.substring(0, label?.indexOf(ver));
+            }
+            let version = ver;
+            if ('http://snomed.info/sct' === action.system) {
+              this.translate.get(`EDITION.${edition}`).subscribe(msg => { label = msg; });
+              version = ver?.replace(/.*\//, '');
+            }
             return {
+              allCodes: allCodes,
               edition: label,
-              version: ver?.replace(/.*\//, ''),
+              system: action.system,
+              version: version,
               uri: ver,
             } as Release;
           });
       }),
       switchMap((versions: Release[]) => {
         let groupedVersions = new Map<string, Release[]>();
-        versions.forEach(version => {
-
-          if (groupedVersions.has(version.edition)) {
-            let versionList = groupedVersions.get(version.edition);
-            versionList?.push(version);
-          }
-          else {
-            groupedVersions.set(version.edition, [version]);
-          }
-        });
+        versions
+          .sort((a, b) => b.version.localeCompare(a.version))
+          .forEach(version => {
+            if (groupedVersions.has(version.edition)) {
+              let versionList = groupedVersions.get(version.edition);
+              versionList?.push(version);
+            }
+            else {
+              groupedVersions.set(version.edition, [version]);
+            }
+          });
         return of(new LoadReleasesSuccess(groupedVersions));
       }),
       catchError((err) => of(new LoadReleasesFailure({ error: err })))
@@ -90,7 +100,7 @@ export class FhirEffects {
   findConcepts$ = createEffect(() => this.actions$.pipe(
     ofType(FhirActionTypes.FIND_CONCEPTS),
     map(action => action.payload),
-    switchMap((action) => this.fhirService.findConcepts(action.text, action.version, action.scope, action.activeOnly).pipe(
+    switchMap((action) => this.fhirService.findConcepts(action.text, action.system, action.version, action.scope, action.activeOnly).pipe(
       map(valueset => {
         if (!valueset.expansion) throw 'No expansion in search result';
         return valueset.expansion;
@@ -110,12 +120,12 @@ export class FhirEffects {
   autoSuggest$ = createEffect(() => this.actions$.pipe(
     ofType(FhirActionTypes.AUTO_SUGGEST),
     map(action => action.payload),
-    switchMap((action) => this.fhirService.autoSuggest(action.text, action.version, action.scope, action.strategy, action.activeOnly).pipe(
+    switchMap((action) => this.fhirService.autoSuggest(action.text, action.system, action.version, action.scope, action.strategy, action.activeOnly).pipe(
       switchMap((matches) => of(new AutoSuggestSuccess(matches))),
       catchError((err) => of(new AutoSuggestFailure({error: err})))
     ))), {dispatch: true});
 
-  mapParameters = (parameters: R4.IParameters, action: { code: any; system: any; version?: any; }) => {
+  mapParameters = (parameters: Parameters, action: { code: any; system: any; version?: any; }) => {
     let props: Properties = {};
 
     parameters.parameter?.map((p) => {

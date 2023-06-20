@@ -56,6 +56,9 @@ public class UserInterfaceConfigurationRestController {
 
     UserInterfaceConfigurationDetailsBuilder builder = UserInterfaceConfigurationDetails.builder()
         .appName(config.getApplicationInstanceName())
+        .appSummary(config.getApplicationInstanceSummary())
+        .logoUrl(config.getLogo())
+        .bannerLogoUrl(config.getBannerLogo())
         .authClientID(security.getClientId())
         .authDomainUrl(security.getAuthDomainUrl())
         .authLoginGrantType(security.getAuthLoginGrantType())
@@ -72,10 +75,14 @@ public class UserInterfaceConfigurationRestController {
         .userGuideUrl(config.getUserGuideUrl())
         .termsOfServiceUrl(config.getTermsOfServiceUrl())
         .privacyPolicyUrl(config.getPrivacyPolicyUrl())
+        .providerUrl(config.getProviderUrl())
+        .provider(config.getProvider())
         .userRegistrationUrl(config.getUserRegistrationUrl())
         .registrationText(config.getRegistrationText())
         .mainPageText(config.getMainPageText())
-        .currentTermsVersion(config.getCurrentTermsVersion());
+        .feedbackUrl(config.getFeedbackUrl())
+        .currentTermsVersion(config.getCurrentTermsVersion())
+        .targetCodeSystems(config.getTargetCodeSystems());
 
     version.getShortGitCommit().ifPresent(builder::sentryRelease);
 

@@ -15,7 +15,7 @@
  */
 
 import {Action} from '@ngrx/store';
-import {R4} from '@ahryman40k/ts-fhir-types';
+import { ValueSetExpansion } from 'fhir/r4';
 import {Release} from '../../_services/fhir.service';
 import { Properties } from './fhir.effects';
 import {Coding, Match} from './fhir.reducer';
@@ -45,6 +45,9 @@ export enum FhirActionTypes {
 
 export class LoadReleases implements Action {
   readonly type = FhirActionTypes.LOAD_RELEASES;
+
+  constructor(public payload: {system: string}) {
+  }    
 }
 
 export class LoadReleasesSuccess implements Action {
@@ -64,14 +67,14 @@ export class LoadReleasesFailure implements Action {
 export class FindConcepts implements Action {
   readonly type = FhirActionTypes.FIND_CONCEPTS;
 
-  constructor(public payload: {text: string, version: string, scope: string, activeOnly?:boolean}) {
+  constructor(public payload: {text: string, system: string, version: string, scope: string, activeOnly?:boolean}) {
   }
 }
 
 export class FindConceptsSuccess implements Action {
   readonly type = FhirActionTypes.FIND_CONCEPTS_SUCCESS;
 
-  constructor(public payload: R4.IValueSet_Expansion) {
+  constructor(public payload: ValueSetExpansion) {
   }
 }
 
@@ -85,7 +88,7 @@ export class FindConceptsFailure implements Action {
 export class AutoSuggest implements Action {
   readonly type = FhirActionTypes.AUTO_SUGGEST;
 
-  constructor(public payload: {text: string, version: string, scope: string, strategy: string, activeOnly?:boolean}) {
+  constructor(public payload: {text: string, system: string, version: string, scope: string, strategy: string, activeOnly?:boolean}) {
   }
 }
 

@@ -17,6 +17,7 @@
 package org.snomed.snap2snomed.controller.dto;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Value;
@@ -29,7 +30,16 @@ public class UserInterfaceConfigurationDetails {
   String appName;
 
   @NotBlank
-  String authClientID;
+  String appSummary;
+
+  @NotBlank
+  String logoUrl;
+
+  @NotBlank
+  String bannerLogoUrl;
+
+  @NotBlank
+    String authClientID;
 
   @NotBlank
   String authDomainUrl;
@@ -79,6 +89,12 @@ public class UserInterfaceConfigurationDetails {
   String privacyPolicyUrl;
 
   @URL
+  String providerUrl;
+
+  @NotBlank
+  String provider;
+
+  @URL
   String userRegistrationUrl;
 
   String registrationText;
@@ -88,4 +104,10 @@ public class UserInterfaceConfigurationDetails {
 
   @NotBlank
   String currentTermsVersion;
+
+  @URL
+  String feedbackUrl;
+
+  @NotEmpty
+  String[] targetCodeSystems;  
 }

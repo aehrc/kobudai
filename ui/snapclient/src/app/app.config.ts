@@ -15,7 +15,6 @@
  */
 
 import { InjectionToken } from '@angular/core';
-import { logging } from 'protractor';
 
 /**
  *
@@ -28,6 +27,9 @@ export interface AppConfig {
   adminGroup: string;
   apiBaseUrl: string;
   appName: string;
+  appSummary: string;
+  logoUrl: string;
+  bannerLogoUrl: string;
   authClientID: string;
   authDomainUrl: string;
   authLoginGrantType: string;
@@ -47,7 +49,11 @@ export interface AppConfig {
   userGuideUrl: string;
   termsOfServiceUrl: string;
   privacyPolicyUrl: string;
+  providerUrl: string;
+  provider: string;
+  feedbackUrl: string;
   currentTermsVersion: string;
+  targetCodeSystems: string[];
 }
 
 export let APP_CONFIG = new InjectionToken<AppConfig>('APP_CONFIG');

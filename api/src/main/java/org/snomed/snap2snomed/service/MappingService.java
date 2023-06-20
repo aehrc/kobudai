@@ -37,6 +37,7 @@ import org.snomed.snap2snomed.security.WebSecurity;
 import org.snomed.snap2snomed.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 
@@ -548,16 +549,16 @@ public class MappingService {
     final String userId = currentUser.getId();
     final List<MapRowTarget> mapRowTargets = mapRowTargetRepository.findByMapId(mapId);
     Set<String> targetCodes = mapRowTargets.stream().map(target -> target.getTargetCode()).collect(Collectors.toSet());
-    String scope = null;
-    String csVersion = null;
     Optional<org.snomed.snap2snomed.model.Map> map = mapRepository.findById(Long.valueOf(mapId));
-    if (map.isPresent()) {
-      csVersion = map.get().getToVersion();
-      scope = map.get().getToScope();
+    if (!map.isPresent()) {
+      throw new ResourceNotFoundException("No Map exists with id " + mapId);
     }
-    ValidationResult validationResult = fhirService.validateValueSetComposition(targetCodes, csVersion, scope);
-    log.info(MessageFormat.format("The target code system returned the following validation, for the {0} provided codes: {1}",
-            targetCodes.size(), validationResult.toString()));
+    final String codeSystem = map.get().getToSystem();
+    final String csVersion = map.get().getToVersion();
+    final String scope = map.get().getToScope();
+    ValidationResult validationResult = fhirService.validateValueSetComposition(targetCodes, codeSystem, csVersion, scope);
+    log.info(MessageFormat.format("The target code system ({0}) returned the following validation, for the {1} provided codes: {2}",
+            codeSystem, targetCodes.size(), validationResult.toString()));
     Set<String> targetsToFlag = new HashSet<String>(validationResult.getInactive());
     targetsToFlag.addAll(validationResult.getAbsent());
     targetsToFlag.addAll(validationResult.getInvalid());

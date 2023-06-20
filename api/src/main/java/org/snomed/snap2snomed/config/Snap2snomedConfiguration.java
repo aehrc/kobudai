@@ -18,6 +18,7 @@ package org.snomed.snap2snomed.config;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -46,6 +47,15 @@ public class Snap2snomedConfiguration {
   String applicationInstanceName = "Snap2SNOMED";
 
   @NotBlank
+  String applicationInstanceSummary = "A hosted tool for SNOMED International Members to collaboratively create and maintain simple maps to SNOMED CT.";
+
+  @NotBlank
+  String logo = "assets/img/logo.png";
+
+  @NotBlank
+  String bannerLogo = "assets/img/si_logo_400.png";
+
+  @NotBlank
   String defaultLanguage = "en";
 
   int maximumImportedCodeSetRows = 200000;
@@ -60,6 +70,12 @@ public class Snap2snomedConfiguration {
   @URL
   String userGuideUrl = "http://snomed.org/s2sug";
 
+  @NotBlank
+  String provider = "SNOMED International";
+
+  @URL
+  String providerUrl = "http://www.snomed.org";
+  
   @URL
   String termsOfServiceUrl = "https://confluence.ihtsdotools.org/pages/viewpage.action?spaceKey=IT&title=Terms+of+Service";
 
@@ -68,6 +84,12 @@ public class Snap2snomedConfiguration {
 
   @NotBlank
   String currentTermsVersion = "1";
+
+  @URL
+  String feedbackUrl = "https://ihtsdo.freshdesk.com/widgets/feedback_widget/new?&widgetType=embedded&searchArea=no";
+
+  @NotEmpty
+  String[] targetCodeSystems = { "http://snomed.info/sct" };
 
   @NotNull
   @Valid
