@@ -24,7 +24,7 @@ resource "aws_ecs_task_definition" "dex" {
         options = {
           awslogs-group         = aws_cloudwatch_log_group.dex.name
           awslogs-region        = var.aws_region
-          awslogs-stream-prefix = "snap2snomed-dex"
+          awslogs-stream-prefix = "snapagogo-dex"
         }
       }
     }
@@ -58,7 +58,7 @@ resource "aws_ecs_service" "dex" {
 
 resource "aws_security_group" "dex" {
   name        = format("%s-dex-ContainerSecurityGroup", replace(var.host_name, "/[.]/", "-"))
-  description = "Controls access to the dex instance for SNAP-2-SNOMED."
+  description = "Controls access to the dex instance for Snapagogo."
   vpc_id      = aws_vpc.api.id
   ingress {
     description     = "HTTP from load balancer"
@@ -90,7 +90,7 @@ resource "aws_iam_role" "dex" {
   name               = format("%s-dex-TaskRole", replace(var.host_name, "/[.]/", "-"))
   assume_role_policy = data.aws_iam_policy_document.dex_assume.json
   inline_policy {
-    name   = "Snap2SnomedDexTaskRolePolicy"
+    name   = "SnapagogoDexTaskRolePolicy"
     policy = data.aws_iam_policy_document.dex.json
   }
 }

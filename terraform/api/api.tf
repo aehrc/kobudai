@@ -26,7 +26,7 @@ resource "aws_ecs_task_definition" "api" {
       options = {
         awslogs-group         = aws_cloudwatch_log_group.api.name
         awslogs-region        = var.aws_region
-        awslogs-stream-prefix = "snap2snomed"
+        awslogs-stream-prefix = "snapagogo"
       }
     }
   }])
@@ -57,7 +57,7 @@ resource "aws_ecs_service" "api" {
 
 resource "aws_security_group" "api" {
   name        = format("%s-ContainerSecurityGroup", replace(var.host_name, "/[.]/", "-"))
-  description = "Controls access to the container for the SNAP-2-SNOMED API."
+  description = "Controls access to the container for the Snapagogo API."
   vpc_id      = aws_vpc.api.id
   ingress {
     description     = "HTTP from load balancer"
@@ -80,7 +80,7 @@ resource "aws_iam_role" "api" {
   name               = format("%s-TaskRole", replace(var.host_name, "/[.]/", "-"))
   assume_role_policy = data.aws_iam_policy_document.api_assume.json
   inline_policy {
-    name   = "Snap2SnomedApiTaskRolePolicy"
+    name   = "SnapagogoApiTaskRolePolicy"
     policy = data.aws_iam_policy_document.api.json
   }
 }
@@ -129,7 +129,7 @@ resource "aws_secretsmanager_secret_version" "api" {
 }
 
 resource "aws_kms_key" "api" {
-  description = format("SNAP-2-SNOMED %s", var.host_name)
+  description = format("Snapagogo %s", var.host_name)
 
 }
 

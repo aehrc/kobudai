@@ -9,7 +9,7 @@ terraform {
     hostname     = "terraform.csiro.cloud"
     organization = "OD221174-ehealth-research-centreprod-org"
     workspaces {
-      prefix = "snap2snomed-"
+      prefix = "snapagogo-"
     }
   }
 }

@@ -6,7 +6,7 @@ resource "aws_cognito_identity_provider" "dex" {
     attributes_request_method = "GET"
     oidc_issuer               = format("%sidp/dex", var.api_url)
     authorize_scopes          = "profile openid email"
-    client_id                 = "snap2snomed"
+    client_id                 = "snapagogo"
     client_secret             = var.dex_client_secret
   }
   attribute_mapping = {

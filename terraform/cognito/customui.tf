@@ -1,4 +1,4 @@
-resource "aws_cognito_user_pool_ui_customization" "snap2snomedcustom" {
+resource "aws_cognito_user_pool_ui_customization" "snapagogocustom" {
   user_pool_id = aws_cognito_user_pool.userpool.id
   image_file = filebase64(var.cognito_image)
   css                = <<-EOT

@@ -41,7 +41,7 @@ variable "database_user" {
   description = "User for accessing the database"
   type        = string
   sensitive   = true
-  default     = "snap2snomed"
+  default     = "snapagogo"
 }
 
 variable "database_password" {

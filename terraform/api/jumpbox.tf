@@ -25,7 +25,7 @@ resource "aws_iam_instance_profile" "jumpbox_profile" {
   role = "AmazonSSMRoleForInstances"
 }
 
-resource "aws_instance" "snap2snomed-jumpbox" {
+resource "aws_instance" "snapagogo-jumpbox" {
   ami = var.jumpbox_ami_id
   instance_type = "t2.micro"
   iam_instance_profile = aws_iam_instance_profile.jumpbox_profile.id

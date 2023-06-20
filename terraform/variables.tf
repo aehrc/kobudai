@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "api_image" {
   description = "Image repository for the API"
   type        = string
-  default     = "ontoserver.azurecr.io/snap2snomed:main"
+  default     = "ontoserver.azurecr.io/snapagogo:main"
 }
 
 variable "dex_image" {
@@ -140,7 +140,7 @@ variable "fhir_url" {
 variable "app_name" {
   description = "Application name configuration for the front end"
   type        = string
-  default     = "Snap2SNOMED"
+  default     = "Snapagogo"
 }
 
 variable "production" {
@@ -236,7 +236,7 @@ variable "registration_text" {
 variable "main_page_text" {
   description = "Blurb about the instance"
   type        = string
-  default     = "Snap2SNOMED is currently not yet in production. For more information on this application, please visit <a href=\"http://snomed.org/mtug\" rel=\"external\">snomed.org/mtug</a> or contact <a href=\"mailto:info@snomed.org\">info@snomed.org</a>"
+  default     = "Snapagogo is currently not yet in production. For more information on this application, please visit <a href=\"http://github.com/aehrc/snapagogo\" rel=\"external\">github.com/aehrc/snapagogo</a> or contact <a href=\"mailto:ontoserver-support@csiro.au\">ontoserver-support@csiro.au</a>"
 }
 
 variable "dex_loglevel" {

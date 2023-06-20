@@ -12,9 +12,8 @@ resource "aws_cognito_user_pool_client" "appclient" {
   ]
   callback_urls = [
     "https://localhost:4200",
-    "https://snap2snomed.app",
-    "https://snap.snomedtools.org",
-    "https://dev.snap2snomed.app",
+    "https://snapagogo.app",
+    "https://dev.snapagogo.app",
     "https://oauth.pstmn.io/v1/callback"
   ]
   explicit_auth_flows = [
@@ -23,11 +22,10 @@ resource "aws_cognito_user_pool_client" "appclient" {
   id_token_validity = 60
   logout_urls = [
     "https://localhost:4200/",
-    "https://snap.snomedtools.org/",
-    "https://snap2snomed.app/",
-    "https://dev.snap2snomed.app/"
+    "https://snapagogo.app/",
+    "https://dev.snapagogo.app/"
   ]
-  name = "Snap2Snomed"
+  name = "Snapagogo"
   read_attributes = [
     "address",
     "birthdate",
