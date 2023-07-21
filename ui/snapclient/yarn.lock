@@ -1185,8 +1185,8 @@
 
 "@csiro/shrimp-hierarchy-view@^0.0.7":
   version "0.0.7"
-  resolved "https://pkgs.dev.azure.com/aehrc/ontoserver/_packaging/aehrc-npm/npm/registry/@csiro/shrimp-hierarchy-view/-/shrimp-hierarchy-view-0.0.7.tgz#688b4433bda79fbbff735572220cc9dd3e46d305"
-  integrity sha1-aItEM72nn7v/c1VyIgzJ3T5G0wU=
+  resolved "https://registry.yarnpkg.com/@csiro/shrimp-hierarchy-view/-/shrimp-hierarchy-view-0.0.7.tgz#f364ca1ca1f63c9f5fd3fc7ed9ea688903fafffc"
+  integrity sha512-XNECObmUf228UPtp0zryhBL1sc88wWXUH99y+lOk55wEjidqZmnSu8x09a2j2VeK6VFcpCaBHlECl03k3701Sw==
   dependencies:
     tslib "^2.0.0"
 
