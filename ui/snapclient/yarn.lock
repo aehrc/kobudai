@@ -1174,10 +1174,10 @@
   resolved "https://registry.yarnpkg.com/@colors/colors/-/colors-1.5.0.tgz#bb504579c1cae923e6576a4f5da43d25f97bdbd9"
   integrity sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==
 
-"@csiro/shrimp-hierarchy-view@^0.0.7":
-  version "0.0.7"
-  resolved "https://pkgs.dev.azure.com/aehrc/ontoserver/_packaging/aehrc-npm/npm/registry/@csiro/shrimp-hierarchy-view/-/shrimp-hierarchy-view-0.0.7.tgz#688b4433bda79fbbff735572220cc9dd3e46d305"
-  integrity sha1-aItEM72nn7v/c1VyIgzJ3T5G0wU=
+"@csiro/shrimp-hierarchy-view@^0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@csiro/shrimp-hierarchy-view/-/shrimp-hierarchy-view-0.0.8.tgz#7390ac87b2a9508e5377c9ab60845b518c395783"
+  integrity sha512-STbuZlLZjDrka08+f+kbTRJTwju+3/9+wR3wwEBKeoHTAosEDx7uaOsiwvXNM7QgKiPIQ+FpFOTdK20KeG7JMQ==
   dependencies:
     tslib "^2.0.0"
 
