@@ -3,7 +3,8 @@ name: snapagogo-$(Date:yyyyMMdd)$(Rev:.r)_$(SourceBranchName)
 trigger:
   branches:
     include:
-    - '*'
+    - main
+    - 'feature/*'
     
 pr: none
 
