@@ -17,6 +17,7 @@
 package org.snomed.snap2snomed.integration.repository;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -113,11 +114,17 @@ public class NoteResourceIT extends IntegrationTestBase {
     String note1Modified = restClient.givenDefaultUser().body(restClient.createNoteJson(mapRowId2, DEFAULT_TEST_USER_SUBJECT, "Maprow 2 - This is a test note 1"))
         .post("/notes/").then().statusCode(201).extract().body().jsonPath().getString("modified");
 
+    Thread.sleep(1100);
+
     String note2Modified = restClient.givenDefaultUser().body(restClient.createNoteJson(mapRowId2, DEFAULT_TEST_USER_SUBJECT, "Maprow 2 - This is a test note 2"))
         .post("/notes/").then().statusCode(201).extract().body().jsonPath().getString("modified");
 
+    Thread.sleep(1200);
+
     String note3Modified = restClient.givenDefaultUser().body(restClient.createNoteJson(mapRowId2, DEFAULT_TEST_USER_SUBJECT, "Maprow 2 - This is a test note 3"))
         .post("/notes/").then().statusCode(201).extract().body().jsonPath().getString("modified");
+
+    Thread.sleep(1400);
 
     String note4Modified = restClient.givenDefaultUser().body(restClient.createNoteJson(mapRowId3, DEFAULT_TEST_USER_SUBJECT, "Maprow 3 - This is a test note 4"))
         .post("/notes/").then().statusCode(201).extract().body().jsonPath().getString("modified");
