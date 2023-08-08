@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-alter table "user" add accepted_terms_version VARCHAR(255);
-alter table map_row_target_aud alter column target_display VARCHAR(2048);
-alter table user_aud add accepted_terms_version VARCHAR(255);
+alter table map_row_target_tags_aud add constraint FK3v475gipqy1gpqov5ssf816pg foreign key (rev) references revinfo (rev);
+alter table map_row_target_tags add constraint FKf8qe9o6u78cpkogwk5x0bsyui foreign key (map_row_target_id) references map_row_target (id);
 
+alter table map_row_target_tags add index map_row_target_id (map_row_target_id);
