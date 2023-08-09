@@ -55,17 +55,15 @@
   </properties>
 
   <!-- use to force version for CVEs -->
-  <!-- OLD, but retained as template
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-text</artifactId>
-        <version>1.10.0</version>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>32.1.2-jre</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
-  -->
 
   <dependencies>
     <dependency>
