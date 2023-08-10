@@ -534,4 +534,12 @@
     </profile>
   </profiles>
 
+  <repositories>
+    <repository>
+      <id>ihtsdo-releases</id>
+      <name>IHTSDO Public Nexus Releases</name>
+      <url>https://nexus3.ihtsdotools.org/repository/maven-releases/</url>
+    </repository>
+  </repositories>
+
 </project>
