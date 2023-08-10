@@ -54,6 +54,7 @@ export interface AppConfig {
   feedbackUrl: string;
   currentTermsVersion: string;
   targetCodeSystems: string[];
+  identityProvider: string;
 }
 
 export let APP_CONFIG = new InjectionToken<AppConfig>('APP_CONFIG');

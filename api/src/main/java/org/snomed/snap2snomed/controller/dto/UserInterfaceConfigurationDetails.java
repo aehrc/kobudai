@@ -110,4 +110,6 @@ public class UserInterfaceConfigurationDetails {
 
   @NotEmpty
   String[] targetCodeSystems;  
+
+  String identityProvider;
 }

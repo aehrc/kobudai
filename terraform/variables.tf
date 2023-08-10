@@ -245,6 +245,12 @@ variable "dex_loglevel" {
   default     = "info"
 }
 
+variable "identity_provider" {
+  description = "Identity provider"
+  type        = string
+  default     = ""
+}
+
 variable "force_dex_deployment" {
   description = "Force DEX ECS redeployment"
   type        = bool
@@ -259,12 +265,6 @@ variable "loki_username" {
 
 variable "loki_password" {
   description = "Loki service password"
-  type        = string
-  sensitive   = true
-}
-
-variable "loki_url" {
-  description = "Loki service url"
   type        = string
   sensitive   = true
 }

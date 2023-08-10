@@ -82,7 +82,8 @@ public class UserInterfaceConfigurationRestController {
         .mainPageText(config.getMainPageText())
         .feedbackUrl(config.getFeedbackUrl())
         .currentTermsVersion(config.getCurrentTermsVersion())
-        .targetCodeSystems(config.getTargetCodeSystems());
+        .targetCodeSystems(config.getTargetCodeSystems())
+        .identityProvider(config.getIdentityProvider());
 
     version.getShortGitCommit().ifPresent(builder::sentryRelease);
 

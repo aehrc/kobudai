@@ -75,7 +75,7 @@ stages:
           - script: |
               export VERSION=`git rev-parse --short=7 HEAD` && \
               yarn exec sentry-cli releases new $VERSION && \
-              yarn exec sentry-cli releases set-commits $VERSION -- --auto --ignore-missing && \
+              yarn exec sentry-cli releases set-commits $VERSION -- --auto --ignore-missing --ignore-empty && \
               yarn exec sentry-cli releases files $VERSION upload-sourcemaps ../target/site
             displayName: Notify Sentry of release
             workingDirectory: $(System.DefaultWorkingDirectory)/ui/snapclient

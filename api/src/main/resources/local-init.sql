@@ -14,5 +14,11 @@
  * limitations under the License.
  */
 
-alter table imported_code alter column display VARCHAR(2048);
+/* Create the database. */
+CREATE DATABASE snap2snomed;
 
+/* Create a local user. */
+CREATE USER snap2snomed@localhost;
+
+/* Grant all privileges to the local user. */
+GRANT ALL PRIVILEGES ON snap2snomed.* TO snap2snomed@localhost;

@@ -80,11 +80,11 @@ export class MappingAddComponent implements OnInit {
   previousVersionSource: Source | undefined;
   warnDelete = false;
 
-  @Input() set mapping(value: Mapping) {
+  @Input() set mapping(value: Mapping | undefined) {
     if (value) {
       this.mappingModel = cloneDeep(value);
       // if target version no longer available - need to clear model
-      if (!this.hasAvailableTargetVersion(this.mappingModel.toVersion) && this.editionToVersionsMapLoaded) {
+      if (this.mappingModel.toVersion !== null && !this.hasAvailableTargetVersion(this.mappingModel.toVersion) && this.editionToVersionsMapLoaded) {
         this.mappingModel.toVersion = '';
         this.mappingModel.toScope = '';
       }
@@ -202,7 +202,7 @@ export class MappingAddComponent implements OnInit {
     });
     self.store.select(selectAddEditMappingSuccess).subscribe(res => {
       if (res && !self.error.detail) {
-        this.closed.emit();
+        //this.closed.emit();
       }
     });
   }
@@ -250,6 +250,7 @@ export class MappingAddComponent implements OnInit {
     this.closed.emit();
     this.error = {};
   }
+
 
   addSource($event: MouseEvent): void {
     $event.preventDefault();

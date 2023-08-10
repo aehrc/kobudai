@@ -108,4 +108,5 @@ public class Snap2snomedConfiguration {
   @Valid
   SwaggerConfiguration swagger = new SwaggerConfiguration();
 
+  String identityProvider = "";
 }

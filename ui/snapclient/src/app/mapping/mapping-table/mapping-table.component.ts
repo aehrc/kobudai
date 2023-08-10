@@ -25,7 +25,8 @@ import {
   mapRowStatuses,
   MapView,
   MapViewFilter,
-  Page
+  Page,
+  TARGET_OUT_OF_SCOPE_TAG
 } from '../../_models/map_row';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
 import {MatSort, Sort, SortDirection} from '@angular/material/sort';
@@ -89,6 +90,7 @@ export class MappingTableComponent implements OnInit, AfterViewInit, OnDestroy {
     {columnId: 'relationship', columnDisplay: 'TABLE.RELATIONSHIP', displayed: true},
     {columnId: 'noMap', columnDisplay: 'TABLE.NO_MAP', displayed: true},
     {columnId: 'status', columnDisplay: 'TABLE.STATUS', displayed: true},
+    {columnId: 'targetOutOfScope', columnDisplay: 'TABLE.TARGET_OUT_OF_SCOPE', displayed: true},
     {columnId: 'flagged', columnDisplay: 'TABLE.FLAG', displayed: true},
     {columnId: 'latestNote', columnDisplay: 'SOURCE.TABLE.NOTES', displayed: true},
     {columnId: 'actions', columnDisplay: '', displayed: true}
@@ -106,6 +108,7 @@ export class MappingTableComponent implements OnInit, AfterViewInit, OnDestroy {
     'filter-relationship',
     'filter-noMap',
     'filter-status',
+    'filter-targetOutOfScope',
     'filter-flagged',
     'filter-notes',
     'filter-actions',
@@ -420,6 +423,13 @@ export class MappingTableComponent implements OnInit, AfterViewInit, OnDestroy {
             row.targetDisplay = displayTerm;
             row.status = MapRowStatus.DRAFT;
             row.relationship = MapRowRelationship.INEXACT;
+            row.targetOutOfScope = false;
+
+            const tagIndex = row.tags?.indexOf(TARGET_OUT_OF_SCOPE_TAG, 0);
+            if (tagIndex !== undefined && tagIndex > -1) {
+              row.tags?.splice(tagIndex, 1);
+            }
+            
             self.updateMapRowTarget(row, index);
           });
         }

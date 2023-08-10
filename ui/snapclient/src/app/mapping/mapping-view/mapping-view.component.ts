@@ -67,6 +67,7 @@ import {MappingImportComponent} from '../mapping-import/mapping-import.component
 import { MappingNotesComponent } from '../mapping-table-notes/mapping-notes.component';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { TableColumn } from '../mapping-table/mapping-table.component';
+import { TargetChangedService } from 'src/app/_services/target-changed.service';
 
 @Component({
   selector: 'app-mapping-view',
@@ -125,6 +126,7 @@ export class MappingViewComponent implements OnInit, AfterViewInit, OnDestroy {
     {columnId: 'relationship', columnDisplay: 'TABLE.RELATIONSHIP', displayed: true},
     {columnId: 'noMap', columnDisplay: 'TABLE.NO_MAP', displayed: true},
     {columnId: 'status', columnDisplay: 'TABLE.STATUS', displayed: true},
+    {columnId: 'targetOutOfScope', columnDisplay: 'TABLE.TARGET_OUT_OF_SCOPE', displayed: true},
     {columnId: 'flagged', columnDisplay: 'TABLE.FLAG', displayed: true},
     {columnId: 'latestNote', columnDisplay: 'SOURCE.TABLE.NOTES', displayed: true},
     {columnId: 'lastAuthorReviewer', columnDisplay: 'TABLE.LAST_AUTHOR_REVIEWER', displayed: true},
@@ -159,6 +161,7 @@ export class MappingViewComponent implements OnInit, AfterViewInit, OnDestroy {
     'filter-relationship',
     'filter-noMap',
     'filter-status',
+    'filter-targetOutOfScope',
     'filter-flagged',
     'filter-notes',
     'filter-lastAuthorReviewer',
@@ -213,7 +216,8 @@ export class MappingViewComponent implements OnInit, AfterViewInit, OnDestroy {
               private store: Store<IAppState>,
               private translate: TranslateService,
               private mapService: MapService,
-              private authService: AuthService,) {
+              private authService: AuthService,
+              private targetChangedService: TargetChangedService) {
     this.translate.get('TASK.SELECT_A_TASK').subscribe((res) => this.selectedLabel = res);
 
     this.paging = new MapViewPaging();
@@ -646,6 +650,7 @@ export class MappingViewComponent implements OnInit, AfterViewInit, OnDestroy {
         if ((validationResult.inactive.length + validationResult.absent.length + validationResult.invalid.length) > 0) {
           this.refreshTable('validated');
         }
+        this.targetChangedService.changeTarget({}); // needs to update on a zero count
         this.clearLoading();
       }, err => {
         this.validateError(err);
