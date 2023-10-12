@@ -22,7 +22,7 @@ import { Integrations } from '@sentry/tracing';
 import { AppModule } from './app/app.module';
 import { AppConfig, APP_CONFIG } from './app/app.config';
 
-fetch(`/assets/config.json`)
+fetch(`assets/config.json`)
   .then((response) => response.json())
   .then((snapConfig) => {
     console.log('Fetching config from: ' + `${snapConfig.apiBaseUrl}/config`);
