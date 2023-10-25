@@ -213,7 +213,7 @@ export class MappingAddComponent implements OnInit {
 
   onSubmit(): void {
     this.error = {};
-    this.fhirService.validateEcl(this.mappingModel.toScope).subscribe(
+    this.fhirService.validateValueSet(this.mappingModel.toScope).subscribe(
       (result) => {
         if (result.valid) {
           if (this.mode === 'FORM.CREATE') {

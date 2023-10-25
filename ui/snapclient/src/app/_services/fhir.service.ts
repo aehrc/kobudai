@@ -403,10 +403,10 @@ export class FhirService {
     return version + '?fhir_vs=ecl/' + encodeURIComponent(ecl.replace(/\s+/g, ' '));
   }
 
-  validateEcl(ecl: string): Observable<{ valid: boolean, detail?: any }> {
+  validateValueSet(valueSetUrl: string): Observable<{ valid: boolean, detail?: any }> {
     const url = `${this.config.fhirBaseUrl}/ValueSet/$expand`;
     const params: any = {
-      url: FhirService.toValueSet('http://snomed.info/sct', ecl),
+      url: valueSetUrl,
       count: 1,   // work around Snowstorm bug with count=0
     };
 
