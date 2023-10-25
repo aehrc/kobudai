@@ -169,6 +169,7 @@
     "SOURCE_SELECT": "Select a code-set or import new code-set with plus button",
     "TARGET": "Target",
     "TARGET_PROPERTIES": "Target properties",
+    "TARGET_SYSTEM": "Target code system",
     "TARGET_EDITION": "Target code system edition",
     "TARGET_EDITION_ERROR": "Invalid target edition",
     "TARGET_VERSION": "Target code system version",
