@@ -131,7 +131,9 @@ export class MappingAddComponent implements OnInit {
   ngOnInit(): void {
     const self = this;
     self.error = {};
-    self.loadReleases(self.mappingModel.toSystem);
+    if (this.mode === 'FORM.CREATE' || this.mode === 'FORM.COPY') {
+      self.loadReleases(self.mappingModel.toSystem);
+    }
     self.store.dispatch(new LoadSources());
     self.load();
   }
@@ -180,16 +182,18 @@ export class MappingAddComponent implements OnInit {
       data => {
         this.editionToVersionsMap = data;
         this.editionToVersionsMapLoaded = true;
-        this.selectedEdition = '';
-        if (this.editionToVersionsMap?.size === 1) {
-          for (let key of this.editionToVersionsMap?.keys()||[]) {
-            if ('' === this.selectedEdition) {
-              this.selectedEdition = key;
+        if (this.mode === 'FORM.CREATE' || this.mode === 'FORM.COPY') {
+          this.selectedEdition = '';
+          if (this.editionToVersionsMap?.size === 1) {
+            for (let key of this.editionToVersionsMap?.keys()||[]) {
+              if ('' === this.selectedEdition) {
+                this.selectedEdition = key;
+              }
             }
           }
-        }
-        if (this.editionToVersionsMap?.keys) {
-          this.changeEdition(this.selectedEdition);
+          if (this.editionToVersionsMap?.keys) {
+            this.changeEdition(this.selectedEdition);
+          }
         }
       },
       error => this.translate.get('ERROR.LOAD_VERSIONS').subscribe((res) => self.createOrAppendError(res))
