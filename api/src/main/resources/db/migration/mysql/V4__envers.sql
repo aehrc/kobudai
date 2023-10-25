@@ -37,6 +37,7 @@ create table if not exists map_aud
     map_version varchar(255),
     modified    timestamp null,
     modified_by varchar(255),
+    to_system    varchar(255),
     to_scope    varchar(255),
     to_version  varchar(255),
     project_id  bigint,
