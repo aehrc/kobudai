@@ -39,6 +39,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FhirService {
 
+    private static final String SCT_CODE_SYSTEM = "http://snomed.info/sct";
+
     @Autowired
     TerminologyProvider terminologyProvider;
 
@@ -48,7 +50,7 @@ public class FhirService {
     public ValidationResult validateValueSetComposition(
             Set<String> codes, String codeSystem, String codeSystemVersion, String scope) throws IOException {
         Set<String> invalid = new HashSet<>();
-        if (codes != null) {
+        if (codes != null && codeSystem.equals(SCT_CODE_SYSTEM)) {
             for (String code : codes) {
                 if (code != null && !code.trim().isEmpty() && !isValidSctId(code, RF2SchemaConstants.PartionIdentifier.CONCEPT)) {
                     invalid.add(code);
