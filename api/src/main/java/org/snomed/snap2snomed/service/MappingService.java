@@ -494,7 +494,7 @@ public class MappingService {
   }
 
   @Transactional
-  public Long newMappingVersion(Long mapId, Long newSourceId, String mapVersion, String targetVersion, String targetScope) throws IOException {
+  public Long newMappingVersion(Long mapId, Long newSourceId, String mapVersion, String targetSystem, String targetVersion, String targetScope) throws IOException {
     final Map originalMap = mapRepository.findById(mapId)
         .orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND, "No Map found with id " + mapId));
     final ImportedCodeSet newSource = importedCodeSetRepository.findById(newSourceId)
@@ -517,6 +517,7 @@ public class MappingService {
     Map newMap = Map.builder()
         .project(originalMap.getProject())
         .mapVersion(mapVersion)
+        .toSystem(targetSystem)
         .toVersion(targetVersion)
         .toScope(targetScope)
         .source(newSource)

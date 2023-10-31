@@ -158,6 +158,7 @@ export class MapService {
     const body = JSON.stringify({
       sourceId: mapping.source.id,
       mapVersion: mapping.mapVersion,
+      toSystem: mapping.toSystem,
       toVersion: mapping.toVersion,
       toScope: mapping.toScope
     });
