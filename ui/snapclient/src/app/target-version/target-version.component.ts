@@ -30,6 +30,7 @@ export class TargetVersionComponent {
     if ('http://snomed.info/sct' !== this.system) {
      this.label = this.system;
       this.effectiveTime = v || 'Latest available';
+      this.country = null;
       return;
     }
 
