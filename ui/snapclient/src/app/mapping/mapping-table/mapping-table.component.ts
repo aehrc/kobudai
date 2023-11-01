@@ -280,7 +280,7 @@ export class MappingTableComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getMapping(): Mapping | undefined {
-    return this.mapping ?? undefined;
+    return this.task.mapping ?? undefined;
   }
 
   getDisplayedColumns() : string[] {
