@@ -44,7 +44,7 @@ public class Snap2snomedConfiguration {
   boolean production = true;
 
   @NotBlank
-  String applicationInstanceName = "Snap2SNOMED";
+  String applicationInstanceName = "Snapagogo";
 
   @NotBlank
   String applicationInstanceSummary = "A hosted tool for SNOMED International Members to collaboratively create and maintain simple maps to SNOMED CT.";
@@ -89,7 +89,7 @@ public class Snap2snomedConfiguration {
   String feedbackUrl = "https://ihtsdo.freshdesk.com/widgets/feedback_widget/new?&widgetType=embedded&searchArea=no";
 
   @NotEmpty
-  String[] targetCodeSystems = { "http://snomed.info/sct" };
+  String[] targetCodeSystems = { "http://snomed.info/sct", "http://loinc.org" };
 
   @NotNull
   @Valid
