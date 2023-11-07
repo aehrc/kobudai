@@ -131,9 +131,7 @@ export class MappingAddComponent implements OnInit {
   ngOnInit(): void {
     const self = this;
     self.error = {};
-    if (this.mode === 'FORM.CREATE' || this.mode === 'FORM.COPY') {
-      self.loadReleases(self.mappingModel.toSystem);
-    }
+    self.loadReleases(self.mappingModel.toSystem);
     self.store.dispatch(new LoadSources());
     self.load();
   }
