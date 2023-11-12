@@ -49,6 +49,9 @@ public class UserInterfaceConfigurationRestController {
   @Value("${sentry.dialog:false}")
   boolean sentryDialog;
 
+  @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}")
+  String issuerUri;
+
   @Operation(description = "Returns configuration information for front end applications connecting to the server.")
   @GetMapping("/config")
   public @Valid UserInterfaceConfigurationDetails getConfiguration() {
@@ -60,7 +63,7 @@ public class UserInterfaceConfigurationRestController {
         .logoUrl(config.getLogo())
         .bannerLogoUrl(config.getBannerLogo())
         .authClientID(security.getClientId())
-        .authDomainUrl(security.getAuthDomainUrl())
+        .issuerUri(issuerUri)
         .authLoginGrantType(security.getAuthLoginGrantType())
         .authLoginResponseType(security.getAuthLoginResponseType())
         .authLoginScope(security.getAuthLoginScope())

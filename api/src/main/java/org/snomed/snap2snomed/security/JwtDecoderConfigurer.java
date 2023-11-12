@@ -58,12 +58,12 @@ public class JwtDecoderConfigurer {
 
     if (audience != null && !audience.isBlank()) {
       validators.add(audienceValidator());
-    }
+    } else {
+      String clientId = config.getSecurity().getClientId();
 
-    String clientId = config.getSecurity().getClientId();
-
-    if (clientId != null && !clientId.isBlank()) {
-      validators.add(clientIdValidator());
+      if (clientId != null && !clientId.isBlank()) {
+        validators.add(clientIdValidator());
+      }
     }
 
     validators.add(JwtValidators.createDefaultWithIssuer(issuerUri));

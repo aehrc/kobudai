@@ -47,13 +47,13 @@ public class Snap2snomedConfiguration {
   String applicationInstanceName = "Snapagogo";
 
   @NotBlank
-  String applicationInstanceSummary = "A hosted tool for SNOMED International Members to collaboratively create and maintain simple maps to SNOMED CT.";
+  String applicationInstanceSummary = "A hosted tool for collaboratively creating and maintaining simple maps to FHIR Code Systems.";
 
   @NotBlank
   String logo = "assets/img/logo.png";
 
   @NotBlank
-  String bannerLogo = "assets/img/si_logo_400.png";
+  String bannerLogo = "assets/img/aehrc_logo.png";
 
   @NotBlank
   String defaultLanguage = "en";
@@ -61,9 +61,9 @@ public class Snap2snomedConfiguration {
   int maximumImportedCodeSetRows = 200000;
 
   @URL
-  String userRegistrationUrl = "http://snomed.org/account-apply";
+  String userRegistrationUrl = null;
 
-  String registrationText = "To log in you need a SNOMED International account, which you can freely request at ";
+  String registrationText = "To log in you need an appropriate account.";
 
   String mainPageText = "";
 
@@ -71,13 +71,13 @@ public class Snap2snomedConfiguration {
   String userGuideUrl = "http://snomed.org/s2sug";
 
   @NotBlank
-  String provider = "SNOMED International";
+  String provider = "Australian e-Health Research Centre, CSIRO";
 
   @URL
-  String providerUrl = "http://www.snomed.org";
+  String providerUrl = "http://aehrc.csiro.au";
   
   @URL
-  String termsOfServiceUrl = "https://confluence.ihtsdotools.org/pages/viewpage.action?spaceKey=IT&title=Terms+of+Service";
+  String termsOfServiceUrl = "";
 
   @URL
   String privacyPolicyUrl = "https://www.iubenda.com/privacy-policy/46600952";
@@ -86,7 +86,7 @@ public class Snap2snomedConfiguration {
   String currentTermsVersion = "1";
 
   @URL
-  String feedbackUrl = "https://ihtsdo.freshdesk.com/widgets/feedback_widget/new?&widgetType=embedded&searchArea=no";
+  String feedbackUrl = "";
 
   @NotEmpty
   String[] targetCodeSystems = { "http://snomed.info/sct", "http://loinc.org" };

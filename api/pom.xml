@@ -31,7 +31,7 @@
 
   <properties>
     <java.version>17</java.version>
-    <docker.repository>aehrc/snap2snomed</docker.repository>
+    <docker.repository>aehrc/snapagogo</docker.repository>
     <docker.registry.host>quay.io</docker.registry.host>
     <sentry.version>6.15.0</sentry.version>
     <jacoco.version>0.8.8</jacoco.version>

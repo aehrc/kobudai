@@ -39,10 +39,10 @@ public class UserInterfaceConfigurationDetails {
   String bannerLogoUrl;
 
   @NotBlank
-    String authClientID;
+  String authClientID;
 
   @NotBlank
-  String authDomainUrl;
+  String issuerUri;
 
   @NotBlank
   String authLoginGrantType;

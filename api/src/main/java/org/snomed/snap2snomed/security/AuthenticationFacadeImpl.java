@@ -75,8 +75,13 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
   public Boolean isAdminUser() {
     Authentication authentication = getAuthentication();
     if (authentication.getPrincipal() instanceof Jwt) {
-      List<String> groups = ((Jwt) authentication.getPrincipal()).getClaimAsStringList("cognito:groups");
-      return groups.contains(configuration.getSecurity().getAdminGroup());
+      final Jwt principal = (Jwt) authentication.getPrincipal();
+      if (principal.hasClaim("cognito:groups")) {
+        List<String> groups = principal.getClaimAsStringList("cognito:groups");
+        return groups.contains(configuration.getSecurity().getAdminGroup());
+      } else {
+        return false;
+      }
     } else {
       throw new MissingJwtProblem();
     }

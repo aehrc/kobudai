@@ -31,7 +31,7 @@ export interface AppConfig {
   logoUrl: string;
   bannerLogoUrl: string;
   authClientID: string;
-  authDomainUrl: string;
+  issuerUri: string;
   authLoginGrantType: string;
   authLoginResponseType: string;
   authLoginScope: string;

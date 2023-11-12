@@ -40,9 +40,6 @@ public class SecurityConfiguration {
   String clientId;
 
   @NotBlank
-  String authDomainUrl;
-
-  @NotBlank
   String authLoginGrantType = "authorization_code";
 
   @NotBlank
