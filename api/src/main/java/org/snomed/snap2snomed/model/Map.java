@@ -18,13 +18,21 @@ package org.snomed.snap2snomed.model;
 
 import java.time.Instant;
 import java.util.List;
-import javax.persistence.*;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import lombok.*;
 import org.hibernate.envers.Audited;
 import org.snomed.snap2snomed.model.Project.ListView;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +43,11 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.data.rest.core.config.Projection;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
@@ -71,6 +84,7 @@ public class Map implements Snap2SnomedEntity {
   @Size(min = 1, max = 30, message = "Map version must be between 1 and 30 characters")
   private String mapVersion;
 
+  @NotNull(message = "A Map must always have a target code system")
   @Size(min = 4, max = 60)
   private String toSystem;
 

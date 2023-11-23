@@ -306,15 +306,15 @@ public class Snap2snomedRestClient {
     return objectMapper.writeValueAsString(map);
   }
 
-  public long createMap(String mapVersion, String toVersion, String toScope, Long projectId,
+  public long createMap(String mapVersion, String toSystem, String toVersion, String toScope, Long projectId,
       Long importedCodeSetId) throws JsonProcessingException {
-    return createMap(IntegrationTestBase.DEFAULT_TEST_USER_SUBJECT, mapVersion, toVersion, toScope, projectId, importedCodeSetId);
+    return createMap(IntegrationTestBase.DEFAULT_TEST_USER_SUBJECT, mapVersion, toSystem, toVersion, toScope, projectId, importedCodeSetId);
   }
 
-  public long createMap(String user, String mapVersion, String toVersion, String toScope, Long projectId,
+  public long createMap(String user, String mapVersion, String toSystem, String toVersion, String toScope, Long projectId,
       Long importedCodeSetId) throws JsonProcessingException {
 
-    return create(givenUser(user), createMapJson(mapVersion, toVersion, toScope, projectId, importedCodeSetId), "/maps");
+    return create(givenUser(user), createMapJson(mapVersion, toSystem, toVersion, toScope, projectId, importedCodeSetId), "/maps");
   }
 
   public long createNote(String user, Long mapRowId, String noteText) throws JsonProcessingException {
@@ -747,10 +747,11 @@ public class Snap2snomedRestClient {
     return objectMapper.writeValueAsString(map);
   }
 
-  public String createMapJson(String mapVersion, String toVersion, String toScope, Long projectId, Long importedCodeSetId)
+  public String createMapJson(String mapVersion, String toSystem, String toVersion, String toScope, Long projectId, Long importedCodeSetId)
       throws JsonProcessingException {
     final java.util.Map<String, Object> map = new HashMap<>();
     map.put("mapVersion", mapVersion);
+    map.put("toSystem", toSystem);
     map.put("toVersion", toVersion);
     map.put("toScope", toScope);
     map.put("project", "/projects/" + projectId);
@@ -758,11 +759,12 @@ public class Snap2snomedRestClient {
     return objectMapper.writeValueAsString(map);
   }
 
-  public String createMapJson(Long mapId, String mapVersion, String toVersion, String toScope, Long projectId, Long importedCodeSetId)
+  public String createMapJson(Long mapId, String mapVersion, String toSystem, String toVersion, String toScope, Long projectId, Long importedCodeSetId)
       throws JsonProcessingException {
     final java.util.Map<String, Object> map = new HashMap<>();
     map.put("id", mapId);
     map.put("mapVersion", mapVersion);
+    map.put("toSystem", toSystem);
     map.put("toVersion", toVersion);
     map.put("toScope", toScope);
     map.put("project", "/projects/" + projectId);

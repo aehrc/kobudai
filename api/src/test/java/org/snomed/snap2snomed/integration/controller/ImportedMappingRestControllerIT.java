@@ -20,8 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.snomed.snap2snomed.service.CodeSetImportService.TOO_LARGE_FILE_PROBLEM_URI;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -30,6 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -41,6 +40,9 @@ import org.snomed.snap2snomed.integration.IntegrationTestBase;
 import org.snomed.snap2snomed.model.MapRowTarget;
 import org.snomed.snap2snomed.model.enumeration.MappingRelationship;
 import org.springframework.core.io.ClassPathResource;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class ImportedMappingRestControllerIT extends IntegrationTestBase {
@@ -59,8 +61,8 @@ public class ImportedMappingRestControllerIT extends IntegrationTestBase {
   private static final String CODE_INDEX_PROBLEM_URI = "http://snap2snomed.app/problem/codeset-import/invalid-code-index";
   private static final String TARGET_CODE_INDEX_PROBLEM_URI = "http://snap2snomed.app/problem/codeset-import/invalid-target-code-index";
   private static final String RELATIONSHIP_INDEX_PROBLEM_URI = "http://snap2snomed.app/problem/codeset-import/invalid-relationship-index";
-  private static final String INVALID_DATA_PROBLEM_URI = "http://snap2snomed.app/problem/mapping-import/invalid-data";  
-  private static final String NO_HEADER_PROBLEM_URI = "http://snap2snomed.app/problem/mapping-import/no-header";  
+  private static final String INVALID_DATA_PROBLEM_URI = "http://snap2snomed.app/problem/mapping-import/invalid-data";
+  private static final String NO_HEADER_PROBLEM_URI = "http://snap2snomed.app/problem/mapping-import/no-header";
 
   private static final String[] AAA_TSV_COLUMN_2_LIST = {"3218000", "275716001", "272393004", "236915005", "159136000", "44644008",
       "281155009", "17312001", "264613005", "82809009", "20158009", "20158009", "264613005", "20158009"};
@@ -78,15 +80,15 @@ public class ImportedMappingRestControllerIT extends IntegrationTestBase {
     createLargeCSV("target/large.csv", 100000);
     createLargeCSV("target/too-large.csv", 201000);
     codesetId = restClient.createImportedCodeSet("AAA Tabs", "1.0", 0, 2, true, "\t", new ClassPathResource("AAA.tsv").getFile(), "text/csv");
-    Long codesetId2 = restClient.createImportedCodeSet("AAA Large Tabs", "1.0", 0, 1, true, ",", new File("target/large.csv"), "text/csv");
-    mapId = restClient.createMap("Testing Map Version", "http://snomed.info/sct/32506021000036107/version/20210531",
+    final Long codesetId2 = restClient.createImportedCodeSet("AAA Large Tabs", "1.0", 0, 1, true, ",", new File("target/large.csv"), "text/csv");
+    mapId = restClient.createMap("Testing Map Version", "http://snomed.info/sct", "http://snomed.info/sct/32506021000036107/version/20210531",
         "http://map.test.toscope", projectId, codesetId);
-    mapId2 = restClient.createMap("Testing Large Map Version", "http://snomed.info/sct/32506021000036107/version/20210531",
+    mapId2 = restClient.createMap("Testing Large Map Version", "http://snomed.info/sct", "http://snomed.info/sct/32506021000036107/version/20210531",
         "http://map.test.toscope", projectId, codesetId2);
   }
 
   private void createLargeCSV(String fileName, int rows) throws IOException {
-    FileWriter out = new FileWriter(fileName);
+    final FileWriter out = new FileWriter(fileName);
     try (CSVPrinter printer = new CSVPrinter(out, CSVFormat.DEFAULT.builder()
       .setHeader("Source code", "Source display", "Target code", "Target display", "Relationship type code").build())) {
         for (int i = 0; i < rows; i++) {
@@ -347,7 +349,7 @@ public class ImportedMappingRestControllerIT extends IntegrationTestBase {
   public void failCreateEntityBlankDisplay() throws Exception {
     restClient.expectCreateImportedMapFail( 0, 2, 3, 4, -1, -1, true, "\t",
       new ClassPathResource("AAA-mapimport-blanktargetdisplay.tsv").getFile(), "text/tsv",
-      mapId, 400, DISPLAY_BLANK_PROBLEM_URI, DEFAULT_TEST_USER_SUBJECT);    
+      mapId, 400, DISPLAY_BLANK_PROBLEM_URI, DEFAULT_TEST_USER_SUBJECT);
   }
 
   /**
@@ -357,7 +359,7 @@ public class ImportedMappingRestControllerIT extends IntegrationTestBase {
   public void failCreateEntityInvalidCode() throws Exception {
     restClient.expectCreateImportedMapFail( 0, 2, 3, 4, -1, -1, true, "\t",
       new ClassPathResource("AAA-mapimport-invalidcode.tsv").getFile(), "text/tsv",
-      mapId, 400, INVALID_DATA_PROBLEM_URI, DEFAULT_TEST_USER_SUBJECT);    
+      mapId, 400, INVALID_DATA_PROBLEM_URI, DEFAULT_TEST_USER_SUBJECT);
   }
 
   /**
@@ -396,20 +398,20 @@ public class ImportedMappingRestControllerIT extends IntegrationTestBase {
     verifyImportedMapRowTargerts(codeColumnIndex, targetColumnIndex, targetDisplayColumnIndex, relationshipColumnIndex,
         noMapFlagColumnIndex, statusColumnIndex, hasHeader, delimiter, file, fileType, theMapId);
 
-    List<MapRowTarget> mapRowTargets = restClient.givenDefaultUser().queryParam("mapId", theMapId)
+    final List<MapRowTarget> mapRowTargets = restClient.givenDefaultUser().queryParam("mapId", theMapId)
         .get("/mapRowTargets/search/findByMapId")
         .then().statusCode(200)
         .body("content", hasSize(targetCodes.length))
         .extract().jsonPath().getList("content", MapRowTarget.class);
 
-    for (MapRowTarget mapRowTarget : mapRowTargets) {
+    for (final MapRowTarget mapRowTarget : mapRowTargets) {
       assertThat(Arrays.asList(targetCodes).contains(mapRowTarget.getTargetCode()));
     }
   }
 
   private void verifyImportedMapRowTargerts(int codeColumnIndex, int targetColumnIndex, int targetDisplayColumnIndex,
       int relationshipColumnIndex, int noMapFlagColumnIndex, int statusColumnIndex, boolean hasHeader, String delimiter, File file, String fileType, Long theMapId) throws Exception {
-    MappingImportResponse response = restClient.createImportedMap(codeColumnIndex, targetColumnIndex,
+    final MappingImportResponse response = restClient.createImportedMap(codeColumnIndex, targetColumnIndex,
               targetDisplayColumnIndex, relationshipColumnIndex, noMapFlagColumnIndex, statusColumnIndex, hasHeader, delimiter, file, fileType, theMapId);
 
     assertThat(response.getInsertCount()).isGreaterThan(0);

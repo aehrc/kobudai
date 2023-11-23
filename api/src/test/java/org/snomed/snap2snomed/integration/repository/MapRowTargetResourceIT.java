@@ -63,7 +63,7 @@ public class MapRowTargetResourceIT extends IntegrationTestBase {
 
     codesetId = restClient.createImportedCodeSet("test code set", "1.2.3", 34);
 
-    mapId = restClient.createMap("Testing Map Version", "http://snomed.info/sct/32506021000036107/version/20210531",
+    mapId = restClient.createMap("Testing Map Version", "http://snomed.info/sct", "http://snomed.info/sct/32506021000036107/version/20210531",
         "http://map.test.toscope", projectId, codesetId);
   }
 
@@ -314,7 +314,7 @@ public class MapRowTargetResourceIT extends IntegrationTestBase {
   public void shouldGetTargetRowsFilterByUnassigned() throws Exception {
     final int expectedRowCountTotal = 34;
 
-    final long map2Id = restClient.createMap("Testing Map Version 2", "http://snomed.info/sct/32506021000036107/version/20210531",
+    final long map2Id = restClient.createMap("Testing Map Version 2", "http://snomed.info/sct", "http://snomed.info/sct/32506021000036107/version/20210531",
         "http://map.test.toscope", projectId, codesetId);
 
     final long authorTask = restClient.createTask(TaskType.AUTHOR, map2Id, MEMBER_TEST_USER, "11-13");
@@ -347,7 +347,7 @@ public class MapRowTargetResourceIT extends IntegrationTestBase {
 
   @Test
   public void testSearchByMapId() throws Exception {
-    final long mapId = restClient.createMap("testSearchByMapId Map Version", "http://snomed.info/sct/32506021000036107/version/20210531",
+    final long mapId = restClient.createMap("testSearchByMapId Map Version", "http://snomed.info/sct", "http://snomed.info/sct/32506021000036107/version/20210531",
         "http://map.test.toscope", projectId, codesetId);
 
     final long mapRowId = restClient.getMapRowId(mapId, "map row code 4.");

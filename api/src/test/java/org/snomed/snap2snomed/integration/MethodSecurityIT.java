@@ -16,8 +16,12 @@
 
 package org.snomed.snap2snomed.integration;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import io.restassured.filter.log.LogDetail;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.is;
+
+import java.io.IOException;
+import java.util.Set;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -26,11 +30,9 @@ import org.snomed.snap2snomed.util.DebugLogger;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-import java.io.IOException;
-import java.util.Set;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.is;
+import io.restassured.filter.log.LogDetail;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class MethodSecurityIT extends IntegrationTestBase {
@@ -53,13 +55,13 @@ public class MethodSecurityIT extends IntegrationTestBase {
         restClient.createOrUpdateUser(MEMBER_TEST_USER, "Test", "Member", "Member", "member-test@user.com");
         restClient.createOrUpdateUser(GUEST_TEST_USER, "Test", "Guest", "Guest", "guest-test@user.com");
         restClient.createOrUpdateUser(RANDO_TEST_USER, "Test", "Rando", "Rando", "rando-test@user.com");
-        Resource fileResource = new ClassPathResource("Pathology Organisms 202103.csv");
-        Resource mapFileResource = new ClassPathResource("BBB-test-validate_1.1.csv");
+        final Resource fileResource = new ClassPathResource("Pathology Organisms 202103.csv");
+        final Resource mapFileResource = new ClassPathResource("BBB-test-validate_1.1.csv");
         TEST_PROJECT_ID = restClient.createProject("Testing Project Title", "Testing Project Description",
                 Set.of(DEFAULT_TEST_USER_SUBJECT), Set.of(MEMBER_TEST_USER), Set.of(GUEST_TEST_USER));
         TEST_CODESET_ID = restClient.createImportedCodeSet("BBB validate targets", "1.0",
                 0, 1, true, ",", fileResource.getFile(), "text/csv");
-        TEST_MAP_ID = restClient.createMap("1", "http://snomed.info/sct/32506021000036107/version/20210531",
+        TEST_MAP_ID = restClient.createMap("1", "http://snomed.info/sct", "http://snomed.info/sct/32506021000036107/version/20210531",
                 "http://map.test.toscope", TEST_PROJECT_ID, TEST_CODESET_ID);
     }
 
@@ -70,7 +72,8 @@ public class MethodSecurityIT extends IntegrationTestBase {
 
     @Test
     public void testInvalidUserCannotCreateMap() throws JsonProcessingException {
-        String mapJson = restClient.createMapJson("2",
+        final String mapJson = restClient.createMapJson("2",
+                "http://snomed.info/sct",
                 "http://snomed.info/sct/32506021000036107/version/20210531",
                 "http://map.test.toscope", TEST_PROJECT_ID, TEST_CODESET_ID);
         restClient.givenUser(INVALID_TEST_USER)
@@ -149,7 +152,7 @@ public class MethodSecurityIT extends IntegrationTestBase {
     public void testOwnerCannotAccessInvalidCodeSet() {
         restClient.givenUser(OWNER_TEST_USER).get("/importedCodeSets/999").then().log().ifValidationFails(LogDetail.ALL).statusCode(403);
     }
-    
+
     @Test
     public void testOwnerCanAccessValidMap() {
         restClient.givenUser(OWNER_TEST_USER).get("/maps/" + TEST_MAP_ID).then().statusCode(200)
