@@ -18,6 +18,7 @@ import {ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {FeedbackWidgetComponent} from './feedback-widget.component';
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
+import {APP_CONFIG} from '../app.config';
 
 describe('FeedbackWidgetComponent', () => {
   let component: FeedbackWidgetComponent;
@@ -26,10 +27,12 @@ describe('FeedbackWidgetComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [FeedbackWidgetComponent],
-      providers: [{provide: MAT_DIALOG_DATA, useValue: {}},
-        {provide: MatDialogRef, useValue: {}}]
-    })
-    .compileComponents();
+      providers: [
+        {provide: MAT_DIALOG_DATA, useValue: {}},
+        {provide: APP_CONFIG, useValue: {feedbackUrl: 'https://example.com/feedback'}},
+        {provide: MatDialogRef, useValue: {}},
+      ]
+    }).compileComponents();
   });
 
   beforeEach(() => {

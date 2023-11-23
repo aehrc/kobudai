@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, SecurityContext } from '@angular/core';
 import {APP_CONFIG, AppConfig} from '../app.config';
 import {MatDialogRef} from "@angular/material/dialog";
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-feedback-widget',
@@ -24,11 +25,13 @@ import {MatDialogRef} from "@angular/material/dialog";
   styleUrls: ['./feedback-widget.component.css']
 })
 export class FeedbackWidgetComponent implements OnInit {
-  feedbackUrl: string;
+  feedbackUrl: SafeResourceUrl | null;
 
   constructor(@Inject(APP_CONFIG) private config: AppConfig,
+              private sanitizer: DomSanitizer,
               public dialogRef: MatDialogRef<FeedbackWidgetComponent>) {
-    this.feedbackUrl = config.feedbackUrl;
+    const sanitizedUrl = sanitizer.sanitize(SecurityContext.URL, config.feedbackUrl);
+    this.feedbackUrl = sanitizedUrl && sanitizer.bypassSecurityTrustResourceUrl(sanitizedUrl);
   }
 
   ngOnInit(): void {
