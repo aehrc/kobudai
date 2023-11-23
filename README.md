@@ -2,7 +2,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/aehrc/snapagogo">
-    <img style="background-color:white" height="200px" src="images/logo.png" alt="Logo">
+    <div style="background-color:white;"><img height="200px" src="images/logo.png" alt="Logo"></div>
   </a>
 
   <p align="center">
