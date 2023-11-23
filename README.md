@@ -2,7 +2,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/aehrc/snapagogo">
-    <img src="images/logo.png" alt="Logo">
+    <img style="background-color:white" height="200px" src="images/logo.png" alt="Logo">
   </a>
 
   <p align="center">
@@ -11,13 +11,10 @@
 </p>
 
 ## About The Project
-This project is a mapping tool designed to allow users to collaboratively create and maintain simple maps to FHIR CodeSystems.
-<<<<<<< HEAD
-=======
+This project is a mapping tool designed to allow multiple people to collaboratively create and maintain simple maps to various FHIR CodeSystems hosted in a FHIR Terminology Service.
 
 It is a fork from Snap2Snomed for which the following is the current vision of that project
 <img src="images/vision.png" alt="Vision">
->>>>>>> upstream/main
 
 ### Built With
 
