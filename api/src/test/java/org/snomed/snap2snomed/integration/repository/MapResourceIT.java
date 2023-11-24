@@ -26,9 +26,11 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Set;
 
+import org.junit.FixMethodOrder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.runners.MethodSorters;
 import org.snomed.snap2snomed.integration.IntegrationTestBase;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -36,6 +38,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.restassured.filter.log.LogDetail;
 
 @TestInstance(Lifecycle.PER_CLASS)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MapResourceIT extends IntegrationTestBase {
 
     private static final String SECOND_OWNER = "second-owner";
