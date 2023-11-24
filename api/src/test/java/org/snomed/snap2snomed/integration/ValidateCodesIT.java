@@ -67,7 +67,7 @@ public class ValidateCodesIT extends IntegrationTestBase {
     @Test
     public void validateMapWithEclComments() throws IOException {
         final Long mapId = restClient.createMap("2", "http://snomed.info/sct", "http://snomed.info/sct/32506021000036107/version/20210731",
-                "< 41146007 |Bacterium|", projectId, codeSetId);
+                "http://snomed.info/sct/32506021000036107/version/20210731?fhir_vs=ecl/< 41146007", projectId, codeSetId);
         final MappingImportResponse mappingImportResponse = restClient.createImportedMap(0, 2, 3,
                 4, -1, -1, true, ",", mapFileResource.getFile(), "text/csv", mapId);
         Assert.assertEquals(Integer.valueOf(1996), mappingImportResponse.getInsertCount());

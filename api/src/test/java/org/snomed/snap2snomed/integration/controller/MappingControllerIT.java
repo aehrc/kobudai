@@ -560,6 +560,7 @@ public class MappingControllerIT extends IntegrationTestBase {
 
     final java.util.Map<String, Object> map = new HashMap<>();
     map.put("mapVersion", "new-map-version-new-source");
+    map.put("toSystem", "http://snomed.info/sct");
     map.put("toVersion", "http://snomed.info/sct/32506021000036107/version/20210231");
     map.put("toScope", "*");
     map.put("sourceId", newCodesetId);
@@ -663,6 +664,7 @@ public class MappingControllerIT extends IntegrationTestBase {
 
     final java.util.Map<String, Object> map = new HashMap<>();
     map.put("mapVersion", "new-map-version-same-source");
+    map.put("toSystem", "http://snomed.info/sct");
     map.put("toVersion", "http://snomed.info/sct/32506021000036107/version/20210731");
     map.put("toScope", "*");
     map.put("sourceId", codesetId);
@@ -768,6 +770,7 @@ public class MappingControllerIT extends IntegrationTestBase {
   public void failCreateNewMappingVersionNotProjectOwner() throws Exception {
     final java.util.Map<String, Object> map = new HashMap<>();
     map.put("mapVersion", mapVersion + "new");
+    map.put("toSystem", "http://snomed.info/sct");
     map.put("toVersion", "http://snomed.info/sct/32506021000036107/version/20210531");
     map.put("toScope", "http://map.test.toscope");
     map.put("sourceId", codesetId);
@@ -781,6 +784,7 @@ public class MappingControllerIT extends IntegrationTestBase {
   public void failCreateNewMappingVersionNoSuchImportedCodeSet() throws Exception {
     final java.util.Map<String, Object> map = new HashMap<>();
     map.put("mapVersion", mapVersion);
+    map.put("toSystem", "http://snomed.info/sct");
     map.put("toVersion", "http://snomed.info/sct/32506021000036107/version/20210531");
     map.put("toScope", "http://map.test.toscope");
     map.put("sourceId", 99999);
@@ -795,6 +799,7 @@ public class MappingControllerIT extends IntegrationTestBase {
   public void failCreateNewMappingVersionNoExistingMap() throws Exception {
     final java.util.Map<String, Object> map = new HashMap<>();
     map.put("mapVersion", mapVersion);
+    map.put("toSystem", "http://snomed.info/sct");
     map.put("toVersion", "http://snomed.info/sct/32506021000036107/version/20210531");
     map.put("toScope", "http://map.test.toscope");
     map.put("sourceId", codesetId);
@@ -809,6 +814,7 @@ public class MappingControllerIT extends IntegrationTestBase {
   public void failCreateNewMappingVersionInvalidMap() throws Exception {
     final java.util.Map<String, Object> map = new HashMap<>();
     map.put("mapVersion", mapVersion);
+    map.put("toSystem", "http://snomed.info/sct");
     map.put("toVersion", "http://snomed.info/sct/32506021000036107/version/20210531");
     map.put("toScope", "http://map.test.toscope");
     map.put("sourceId", codesetId);
