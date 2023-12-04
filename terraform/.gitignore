@@ -3,3 +3,4 @@ terraform.tfstate*
 terraform.tfvars
 terraform.rc
 .terraform.lock.hcl
+backendconfig.tfvars
