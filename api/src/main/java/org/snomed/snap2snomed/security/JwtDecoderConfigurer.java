@@ -62,7 +62,7 @@ public class JwtDecoderConfigurer {
 
     String clientId = config.getSecurity().getClientId();
 
-    if (clientId != null && !clientId.isBlank()) {
+    if (clientId != null && !clientId.isBlank() && config.getSecurity().getUseCognito()) {
       validators.add(clientIdValidator());
     }
 

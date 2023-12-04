@@ -26,6 +26,7 @@ import { logging } from 'protractor';
 
 export interface AppConfig {
   adminGroup: string;
+  useCognito: boolean;
   apiBaseUrl: string;
   appName: string;
   authClientID: string;

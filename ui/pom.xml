@@ -36,6 +36,11 @@
   <properties>
     <prodEnvFile>env.prod</prodEnvFile>
     <testEnvFile>env.test</testEnvFile>
+    <jib.version>3.1.4</jib.version>
+    <docker.registry.host>ontoserver.azurecr.io</docker.registry.host>
+    <docker.repository>snapagogo-ui</docker.repository>
+    <docker.image.version>latest</docker.image.version>
+    <api.base.url>http://localhost:8080</api.base.url>
   </properties>
 
   <build>
@@ -89,6 +94,9 @@
               <goal>yarn</goal>
             </goals>
             <configuration>
+              <environmentVariables>
+                <API_BASE_URL>${api.base.url}</API_BASE_URL>
+              </environmentVariables>
               <arguments>run build --prod</arguments>
             </configuration>
           </execution>
@@ -169,6 +177,30 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>0.34.1</version> <!-- Use the latest version -->
+        <executions>
+          <execution>
+            <id>docker-build</id>
+            <goals>
+               <goal>build</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <images>
+            <image>
+              <name>${docker.registry.host}/${docker.repository}:${docker.image.version}</name>
+              <build>
+                <contextDir>${project.basedir}</contextDir>
+                <dockerFile>${project.basedir}/Dockerfile</dockerFile>
+              </build>
+            </image>
+          </images>
+        </configuration>
       </plugin>
     </plugins>
   </build>

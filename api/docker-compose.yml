@@ -1,8 +1,8 @@
 version: '3.2'
 services:
   clair:
-    container_name: snap2snomed_api
-    image: quay.io/aehrc/snap2snomed:latest
+    container_name: snapagogo_api
+    image: ontoserver.azurecr.io/snapagogo-api:latest
     environment:
       - snap2snomed.cors.allowedOriginPatterns=*
       - snap2snomed.cors.allowedHeaders=*
@@ -17,11 +17,16 @@ services:
       - snap2snomed.swagger.contactName=Australian e-Health Research Centre, CSIRO
       - snap2snomed.swagger.contactEmail=ontoserver-support@csiro.au
       - snap2snomed.swagger.contactUrl=https://aehrc.com/
-      - snap2snomed.security.authDomainUrl=https://snap-2-snomed-test.auth.ap-southeast-2.amazoncognito.com
+      - snap2snomed.security.clientId=snapagogo
+      - snap2snomed.security.audience=snapagogo
+      - spring.security.oauth2.resourceserver.jwt.issuer-uri=https://auth.ontoserver.csiro.au/auth/realms/aehrc
+      - snap2snomed.security.authDomainUrl=https://auth.ontoserver.csiro.au/auth/realms/aehrc/protocol/openid-connect
       - snap2snomed.defaultTerminologyServer.url=https://r4.ontoserver.csiro.au/fhir
-      - spring.datasource.url=jdbc:h2:/opt/snap2snomed/db
+      - spring.datasource.driverClassName=software.aws.rds.jdbc.mysql.Driver
+      - spring.datasource.url=jdbc:mysql:aws://host.docker.internal/snapagogo
+      - spring.datasource.username=sa
+      - spring.datasource.password=password
       - snap2snomed.security.adminGroup=AdminGroup
+#      - logging.level.org.springframework=DEBUG
     ports:
       - "8080:8080"
-    volumes:
-      - /opt/snap2snomed/db:/opt/snap2snomed/db

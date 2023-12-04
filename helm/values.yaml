@@ -1,0 +1,60 @@
+## Default values for snapagogo
+
+snapagogo:
+  # image: [Docker repository for image]
+
+  api:
+    image: ontoserver.azurecr.io/snapagogo:develop
+    resources:
+      memory: 3Gi
+      # these defaults result in a memory limit of 1Gi being set which Jib picks up and sets as max heap at runtime
+      initialHeapSize: 2g
+      maxHeapSize: 2g
+      memorylimit: true
+    hostNames:
+      - api.snapagogo.app
+    config:
+      # This section is for server configuration via environment variables
+      spring.security.oauth2.resourceserver.jwt.issuer-uri: https://auth.ontoserver.csiro.au/auth/realms/aehrc
+      snap2snomed.security.authDomainUrl:                   https://auth.ontoserver.csiro.au/auth/realms/aehrc/protocol/openid-connect
+      spring.datasource.driverClassName:                    software.aws.rds.jdbc.mysql.Driver
+      spring.datasource.url:                                jdbc:mysql:aws://snapagogo-db-service/snapagogo
+      spring.datasource.username:                           snapa
+      snap2snomed.security.adminGroup:                      AdminGroup
+
+  ui:
+    hostNames:
+      - www.snapagogo.app
+      - snapagogo.app
+
+  database:
+
+  tolerations: false
+  highPriority: false
+
+nginx-ingress:
+  controller:
+    enableSnippets: true
+    enableCertManager: true
+    ingressClassResource:
+      name: snapagogo-nginx
+      controllerValue: 'k8s.io/snapagogo-nginx'
+      enabled: true
+    service:
+      annotations:
+        service.beta.kubernetes.io/azure-dns-label-name: snapagogo
+    ingressClass: 'snapagogo-nginx'
+    ingressClassByName: true
+
+ingress:
+  tlsSecretName: snapagogo-tls-secret
+  class: snapagogo-nginx
+  nginx:
+    sslRedirect: true
+
+certmanager:
+  enabled: true
+
+repoSecret:
+  enabled: false
+  dockerconfigjson: # Docker config Json goes here if repo secret is enabled (e.g. for Quay IO images)

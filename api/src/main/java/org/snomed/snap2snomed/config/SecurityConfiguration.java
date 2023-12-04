@@ -39,6 +39,8 @@ public class SecurityConfiguration {
    */
   String clientId;
 
+  Boolean useCognito;
+
   @NotBlank
   String authDomainUrl;
 

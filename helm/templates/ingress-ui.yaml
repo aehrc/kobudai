@@ -1,0 +1,37 @@
+{{- $releaseName := .Release.Name }}
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name:  {{ .Release.Name }}-ui-ingress
+  annotations:
+    {{- if .Values.certmanager.enabled }}
+    cert-manager.io/cluster-issuer: letsencrypt
+    cert-manager.io/issue-temporary-certificate: "true" # temporary cert required for nginx to be able to reload
+    acme.cert-manager.io/http01-edit-in-place: "true" # important to merge with existing ingress resource into a single nginx config file
+    {{- end }}
+    nginx.org/proxy-connect-timeout: "300s"
+    nginx.org/proxy-read-timeout: "300s"
+    nginx.org/redirect-to-https: "{{ .Values.ingress.nginx.sslRedirect }}"
+    ingress.kubernetes.io/ssl-redirect: "{{ .Values.ingress.nginx.sslRedirect }}"
+
+spec:
+  ingressClassName:  {{ .Values.ingress.class }}
+  tls:
+    - hosts:
+    {{- range.Values.snapagogo.ui.hostNames }}
+        - {{. }}
+    {{- end }}
+      secretName: {{ .Values.ingress.uiTlsSecretName }}
+  rules:
+    {{- range.Values.snapagogo.ui.hostNames }}
+    - host: {{ . }}
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ .Release.Name }}-ui-service
+                port:
+                  number: 80
+    {{- end }}

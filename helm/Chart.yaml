@@ -1,0 +1,10 @@
+apiVersion: v2
+name: snapagogo
+description: A Helm chart for Snapagogo
+type: application
+version: 1.0.0
+dependencies:
+  - name: nginx-ingress
+    condition: ingress.nginx.enabled
+    version: ^1.0.2
+    repository: https://helm.nginx.com/stable

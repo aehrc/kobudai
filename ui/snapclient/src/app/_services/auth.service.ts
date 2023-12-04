@@ -71,7 +71,7 @@ export class AuthService {
         .set('scope', this.authLoginScope)
         .set('redirect_uri', this.authLoginRedirectUrl);
       // Redirect to AWS Cognito hosted UI
-      window.location.href = `${this.baseUrl}/login?${params.toString()}`;
+      window.location.href = `${this.baseUrl}/auth?${params.toString()}`;
     } else {
       throwError({error: `Login unsuccessful - missing URL ${this.baseUrl}`});
     }
@@ -94,7 +94,7 @@ export class AuthService {
       }
     });
 
-    const url = `${this.baseUrl}/oauth2/token`;
+    const url = `${this.baseUrl}/token`;
     return this.http.post<TokenMsg>(url, body.toString(), header);
   }
 
@@ -106,7 +106,7 @@ export class AuthService {
         Accept: '*/*',
       })
     };
-    const url = `${this.baseUrl}/oauth2/userInfo`;
+    const url = `${this.baseUrl}/userinfo`;
     return this.http.get<UserInfo>(url, header);
   }
 
@@ -171,7 +171,7 @@ export class AuthService {
       if (state && state.id_token) {
         const decoded = jwt_decode(state.id_token);
         // @ts-ignore
-        const groups = decoded['cognito:groups'] ?? null;
+        const groups = this.config.useCognito ? decoded['cognito:groups'] ?? null : decoded['groups'] ?? null;
         if (groups) {
           admin = groups.indexOf(this.config.adminGroup) >= 0;
         }
@@ -236,7 +236,7 @@ export class AuthService {
     } else {
       throwError({error: 'Token is missing'});
     }
-    const url = `${this.baseUrl}/oauth2/token`;
+    const url = `${this.baseUrl}/token`;
     return this.http.post<TokenMsg>(url, body.toString(), {headers});
   }
 

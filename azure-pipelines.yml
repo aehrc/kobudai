@@ -93,11 +93,29 @@ stages:
               tags: |
                 $(Build.SourceBranchName)
           - task: Docker@2
+            condition: succeeded()
+            displayName: Push image
+            inputs:
+              containerRegistry: $(serviceConnection)
+              repository: $(registryPathUi)
+              command: push
+              tags: |
+                $(Build.SourceBranchName)
+          - task: Docker@2
             condition: contains(variables['build.sourceBranch'], 'refs/heads/main')
             displayName: Push image
             inputs:
               containerRegistry: $(serviceConnection)
               repository: $(registryPath)
+              command: push
+              tags: |
+                $(Build.BuildNumber)
+          - task: Docker@2
+            condition: contains(variables['build.sourceBranch'], 'refs/heads/main')
+            displayName: Push image
+            inputs:
+              containerRegistry: $(serviceConnection)
+              repository: $(registryPathUi)
               command: push
               tags: |
                 $(Build.BuildNumber)

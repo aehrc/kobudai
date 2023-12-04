@@ -56,6 +56,7 @@ public class UserInterfaceConfigurationRestController {
 
     UserInterfaceConfigurationDetailsBuilder builder = UserInterfaceConfigurationDetails.builder()
         .appName(config.getApplicationInstanceName())
+        .useCognito(config.getSecurity().getUseCognito())
         .authClientID(security.getClientId())
         .authDomainUrl(security.getAuthDomainUrl())
         .authLoginGrantType(security.getAuthLoginGrantType())

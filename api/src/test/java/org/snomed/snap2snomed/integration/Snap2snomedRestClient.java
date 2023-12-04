@@ -788,7 +788,8 @@ public class Snap2snomedRestClient {
         .setIssuer(issuer)
         .setExpiration(Date.from(now.toInstant().plusSeconds(3600)))
         .setHeaderParam("kid", MockAuthorizationServer.KEY_ID)
-        .addClaims(java.util.Map.of("client_id", config.getSecurity().getClientId(), "cognito:groups", group))
+        .addClaims(java.util.Map.of("client_id", config.getSecurity().getClientId(),
+                    config.getSecurity().getUseCognito() ? "cognito:groups" : "groups", group))
         .signWith(privateKey);
 
     //Builds the JWT and serializes it to a compact, URL-safe string

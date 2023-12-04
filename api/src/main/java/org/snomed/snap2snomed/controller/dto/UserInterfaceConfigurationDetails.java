@@ -88,4 +88,8 @@ public class UserInterfaceConfigurationDetails {
 
   @NotBlank
   String currentTermsVersion;
+
+  @NotBlank
+  Boolean useCognito;
+
 }

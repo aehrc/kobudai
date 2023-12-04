@@ -1,0 +1,81 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ .Release.Name }}-api-deployment
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      {{- if $.Values.repoSecret.enabled }}
+      imagePullSecrets:
+      - name:  {{ $.Values.repoSecret.name }}
+      {{- end }}
+      containers:
+        - name: {{ .Release.Name }}-api
+          image: {{ required "A snapagogo.api.image value is required" .Values.snapagogo.api.image }}
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: {{ .Values.snapagogo.api.resources.cpu }}
+              memory: {{ .Values.snapagogo.api.resources.memory }}
+          {{ if .Values.snapagogo.api.resources.memorylimit }}
+            limits:
+              memory: {{ .Values.snapagogo.api.resources.memory }}
+          {{ end }}
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            failureThreshold: 10
+          env:
+            {{ if and .Values.snomio.resources.initialHeapSize .Values.snomio.resources.maxHeapSize }}
+            - name: JAVA_TOOL_OPTIONS
+              value: -Xms{{ .Values.snapagogo.api.resources.initialHeapSize }} -Xmx{{ .Values.snapagogo.api.resources.maxHeapSize }}
+            {{ end }}
+            {{- range $configKey, $configValue := $.Values.snapagogo.api.config }}
+            - name: {{ $configKey }}
+              value: {{ $configValue | quote }}
+            {{- end }}
+            {{- if $.Values.snapagogo.database.password }}
+            - name: spring.datasource.password
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-db-password
+                  key: password
+            {{- end }}
+      tolerations:
+        {{- range $index, $element := .Values.snapagogo.tolerations }}
+        - key: {{ $element.key }}
+          operator: {{ $element.operator }}
+          value: {{ $element.value }}
+          effect: {{ $element.effect }}
+        {{- end }}
+      {{- end }}
+{{- if .Values.snapagogo.database.password }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Release.Name }}-db-password
+data:
+  password: {{ .Values.snapagogo.database.password | b64enc }}
+{{- end }}
+{{- if .Values.repoSecret.enabled }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $.Values.repoSecret.name }}
+data:
+  .dockerconfigjson:  {{ $.Values.repoSecret.dockerconfigjson }}
+type: kubernetes.io/dockerconfigjson
+{{- end }}
