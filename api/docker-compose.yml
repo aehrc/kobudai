@@ -24,9 +24,7 @@ services:
       - snap2snomed.defaultTerminologyServer.url=https://r4.ontoserver.csiro.au/fhir
       - spring.datasource.driverClassName=software.aws.rds.jdbc.mysql.Driver
       - spring.datasource.url=jdbc:mysql:aws://host.docker.internal/snapagogo
-      - spring.datasource.username=sa
-      - spring.datasource.password=password
-      - snap2snomed.security.adminGroup=AdminGroup
+      - snap2snomed.security.adminGroup=snapagogoadmin
 #      - logging.level.org.springframework=DEBUG
     ports:
       - "8080:8080"
