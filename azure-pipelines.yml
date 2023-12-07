@@ -43,7 +43,7 @@ stages:
             displayName: Build
             inputs:
               mavenPomFile: 'pom.xml'
-              options: '-B -s $(mavenSettings.secureFilePath) -Ddocker.registry.host=$(dockerRegistry) -Ddocker.repository=$(registryPath) -Djib.to.tags=$(Build.SourceBranchName),$(Build.BuildNumber)'
+              options: '-B -s $(mavenSettings.secureFilePath) -Ddocker.registry.host=$(dockerRegistry) -Ddocker.api.repository=$(registryPath) -Ddocker.ui.repository=$(registryPathUi) -Djib.to.tags=$(Build.SourceBranchName),$(Build.BuildNumber) -Ddocker.image.additional.version=$(Build.SourceBranchName) -Ddocker.image.version=$(Build.BuildNumber)'
               mavenFeedAuthenticate: true
               mavenOptions: ' $(mavenOptions)'
               javaHomeOption: 'JDKVersion'

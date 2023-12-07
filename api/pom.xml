@@ -31,7 +31,7 @@
 
   <properties>
     <java.version>17</java.version>
-    <docker.repository>snapagogo-api</docker.repository>
+    <docker.api.repository>snapagogo-api</docker.api.repository>
     <docker.registry.host>ontoserver.azurecr.io</docker.registry.host>
     <sentry.version>6.15.0</sentry.version>
     <jacoco.version>0.8.8</jacoco.version>
@@ -347,7 +347,7 @@
             </environment>
           </container>
           <to>
-            <image>${docker.registry.host}/${docker.repository}</image>
+            <image>${docker.registry.host}/${docker.api.repository}</image>
             <tags>
               <tag>${project.version}-${user.name}</tag>
               <tag>latest-${user.name}</tag>
