@@ -31,7 +31,7 @@ spec:
             pathType: ImplementationSpecific
             backend:
               service:
-                name: {{ .Release.Name }}-ui-service
+                name: {{ $releaseName }}-ui-service
                 port:
                   number: 80
     {{- end }}

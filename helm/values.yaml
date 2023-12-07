@@ -4,10 +4,9 @@ snapagogo:
   # image: [Docker repository for image]
 
   api:
-    image: ontoserver.azurecr.io/snapagogo:develop
+    image: ontoserver.azurecr.io/snapagogo-api:latest
     resources:
       memory: 3Gi
-      # these defaults result in a memory limit of 1Gi being set which Jib picks up and sets as max heap at runtime
       initialHeapSize: 2g
       maxHeapSize: 2g
       memorylimit: true
@@ -18,16 +17,20 @@ snapagogo:
       spring.security.oauth2.resourceserver.jwt.issuer-uri: https://auth.ontoserver.csiro.au/auth/realms/aehrc
       snap2snomed.security.authDomainUrl:                   https://auth.ontoserver.csiro.au/auth/realms/aehrc/protocol/openid-connect
       spring.datasource.driverClassName:                    software.aws.rds.jdbc.mysql.Driver
-      spring.datasource.url:                                jdbc:mysql:aws://snapagogo-db-service/snapagogo
-      spring.datasource.username:                           snapa
-      snap2snomed.security.adminGroup:                      AdminGroup
+      spring.datasource.username:                           root
+      snap2snomed.security.adminGroup:                      /snapagogoadmin
 
   ui:
+    image: ontoserver.azurecr.io/snapagogo-api:latest
     hostNames:
       - www.snapagogo.app
       - snapagogo.app
+    resources:
+      memory: 256m
+      memorylimit: false
 
   database:
+    password: setonthecommandline
 
   tolerations: false
   highPriority: false
@@ -43,8 +46,8 @@ nginx-ingress:
     service:
       annotations:
         service.beta.kubernetes.io/azure-dns-label-name: snapagogo
-    ingressClass: 'snapagogo-nginx'
-    ingressClassByName: true
+    ingressClass:
+      create: true
 
 ingress:
   tlsSecretName: snapagogo-tls-secret

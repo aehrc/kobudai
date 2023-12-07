@@ -1,0 +1,17 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-db-service
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  clusterIP: None
+  selector:
+    app: {{ .Release.Name }}
+  type: ClusterIP
+  ports:
+    - name: tcp
+      protocol: TCP
+      port: 3306
+  selector:
+    app: {{ .Release.Name }}

@@ -37,7 +37,7 @@ spec:
             periodSeconds: 5
             failureThreshold: 10
           env:
-            {{ if and .Values.snomio.resources.initialHeapSize .Values.snomio.resources.maxHeapSize }}
+            {{ if and .Values.snapagogo.api.resources.initialHeapSize .Values.snapagogo.api.resources.maxHeapSize }}
             - name: JAVA_TOOL_OPTIONS
               value: -Xms{{ .Values.snapagogo.api.resources.initialHeapSize }} -Xmx{{ .Values.snapagogo.api.resources.maxHeapSize }}
             {{ end }}
@@ -51,7 +51,10 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}-db-password
                   key: password
+            - name: spring.datasource.url
+              value: jdbc:mysql:aws://{{ .Release.Name }}-db-service:3306/s2s?cachePrepStmts=true&useServerPrepStmts=false&rewriteBatchedStatements=true&socketTimeout=480000
             {{- end }}
+      {{- if .Values.snapagogo.tolerations }}
       tolerations:
         {{- range $index, $element := .Values.snapagogo.tolerations }}
         - key: {{ $element.key }}
@@ -60,15 +63,6 @@ spec:
           effect: {{ $element.effect }}
         {{- end }}
       {{- end }}
-{{- if .Values.snapagogo.database.password }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: {{ .Release.Name }}-db-password
-data:
-  password: {{ .Values.snapagogo.database.password | b64enc }}
-{{- end }}
 {{- if .Values.repoSecret.enabled }}
 ---
 apiVersion: v1

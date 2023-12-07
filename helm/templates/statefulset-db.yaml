@@ -1,0 +1,71 @@
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: {{ .Release.Name }}-db-statefulset
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  serviceName: {{ .Release.Name }}-db-service
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      terminationGracePeriodSeconds: 10
+      {{- if $.Values.repoSecret.enabled }}
+      imagePullSecrets:
+      - name:  {{ $.Values.repoSecret.name }}
+      {{- end }}
+      containers:
+        - name: {{ .Release.Name }}-db
+          image: mysql:8.0.35
+          resources:
+            requests:
+              cpu: {{ .Values.snapagogo.ui.resources.cpu }}
+              memory: {{ .Values.snapagogo.ui.resources.memory }}
+          {{ if .Values.snapagogo.ui.resources.memorylimit }}
+            limits:
+              memory: {{ .Values.snapagogo.ui.resources.memory }}
+          {{ end }}
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-db-password
+                  key: password
+          volumeMounts:
+          - name: snapagogo-db-pvc
+            mountPath: /var/lib/mysql
+      {{- if .Values.snapagogo.tolerations }}
+      tolerations:
+        {{- range $index, $element := .Values.snapagogo.tolerations }}
+        - key: {{ $element.key }}
+          operator: {{ $element.operator }}
+          value: {{ $element.value }}
+          effect: {{ $element.effect }}
+        {{- end }}
+      {{- end }}
+  volumeClaimTemplates:
+  - metadata:
+      name: snapagogo-db-pvc
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 16Gi
+
+{{- if .Values.repoSecret.enabled }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $.Values.repoSecret.name }}
+data:
+  .dockerconfigjson:  {{ $.Values.repoSecret.dockerconfigjson }}
+type: kubernetes.io/dockerconfigjson
+{{- end }}
