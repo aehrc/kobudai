@@ -60,9 +60,9 @@ public class JwtDecoderConfigurer {
       validators.add(audienceValidator());
     } else {
       String clientId = config.getSecurity().getClientId();
-
-    if (clientId != null && !clientId.isBlank() && config.getSecurity().getUseCognito()) {
-      validators.add(clientIdValidator());
+      if (clientId != null && !clientId.isBlank() && config.getSecurity().getUseCognito()) {
+        validators.add(clientIdValidator());
+      }
     }
 
     validators.add(JwtValidators.createDefaultWithIssuer(issuerUri));

@@ -43,3 +43,5 @@ services:
 #      - logging.level.org.springframework=DEBUG
     ports:
       - "8080:8080"
+volumes:
+  snapagogo_db:
