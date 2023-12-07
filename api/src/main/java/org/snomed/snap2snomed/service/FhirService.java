@@ -16,30 +16,35 @@
 
 package org.snomed.snap2snomed.service;
 
-import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
-import com.google.common.collect.Lists;
-import lombok.extern.slf4j.Slf4j;
-import org.hl7.fhir.r4.model.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.hl7.fhir.r4.model.BooleanType;
+import org.hl7.fhir.r4.model.CanonicalType;
+import org.hl7.fhir.r4.model.CodeType;
+import org.hl7.fhir.r4.model.IntegerType;
+import org.hl7.fhir.r4.model.ValueSet;
 import org.ihtsdo.snomed.util.SnomedUtils;
 import org.ihtsdo.snomed.util.rf2.schema.RF2SchemaConstants;
 import org.snomed.snap2snomed.config.Snap2snomedConfiguration;
-import org.snomed.snap2snomed.config.TerminologyServerConfiguration;
 import org.snomed.snap2snomed.controller.dto.ValidationResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.google.common.collect.Lists;
+
+import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
 public class FhirService {
 
-    private static final String DEFAULT_CODE_SYSTEM = "http://snomed.info/sct";
+    private static final String SCT_CODE_SYSTEM = "http://snomed.info/sct";
 
     @Autowired
     TerminologyProvider terminologyProvider;
@@ -48,10 +53,10 @@ public class FhirService {
     Snap2snomedConfiguration configuration;
 
     public ValidationResult validateValueSetComposition(
-            Set<String> codes, String codeSystemVersion, String scope) throws IOException {
-        Set<String> invalid = new HashSet<>();
-        if (codes != null) {
-            for (String code : codes) {
+            Set<String> codes, String codeSystem, String codeSystemVersion, String scope) throws IOException {
+        final Set<String> invalid = new HashSet<>();
+        if (codes != null && codeSystem.equals(SCT_CODE_SYSTEM)) {
+            for (final String code : codes) {
                 if (code != null && !code.trim().isEmpty() && !isValidSctId(code, RF2SchemaConstants.PartionIdentifier.CONCEPT)) {
                     invalid.add(code);
                 }
@@ -61,22 +66,19 @@ public class FhirService {
         if (codes == null || codes.isEmpty()) {
             return new ValidationResult(0, new HashSet<>(), new HashSet<>(), invalid);
         }
-      ValueSet valueSetToExpand = new ValueSet();
-      List<ValueSet.ConceptSetComponent> conceptSetComponents = new ArrayList<>();
-      List<ValueSet.ConceptReferenceComponent> conceptReferenceComponents =
+      final ValueSet valueSetToExpand = new ValueSet();
+      final List<ValueSet.ConceptSetComponent> conceptSetComponents = new ArrayList<>();
+      final List<ValueSet.ConceptReferenceComponent> conceptReferenceComponents =
               codes.stream().map(targetCode -> new ValueSet.ConceptReferenceComponent(new CodeType(targetCode))).collect(Collectors.toList());
-      List<List<ValueSet.ConceptReferenceComponent>> partitionedConceptReferenceComponents =
+      final List<List<ValueSet.ConceptReferenceComponent>> partitionedConceptReferenceComponents =
               Lists.partition(conceptReferenceComponents, configuration.getDefaultTerminologyServer().getExpandBatchSize().intValue());
       String reqScope = scope;
       if (reqScope != null) {
-        if (!reqScope.matches("^http.*")) {
-            reqScope = codeSystemVersion + "?fhir_vs=ecl/" + reqScope;
-        }
-        reqScope = reqScope.replaceAll("\\|", URLEncoder.encode("|", Charset.defaultCharset()));
-        String finalReqScope = reqScope;
+        reqScope = reqScope.replaceAll("\\s*\\|[^|]*\\|\\s*", "");      // remove terms
+        final String finalReqScope = reqScope;
         partitionedConceptReferenceComponents.forEach(batch -> {
-          ValueSet.ConceptSetComponent batchedConceptSetComponent = new ValueSet.ConceptSetComponent();
-          batchedConceptSetComponent.setSystem(DEFAULT_CODE_SYSTEM);
+          final ValueSet.ConceptSetComponent batchedConceptSetComponent = new ValueSet.ConceptSetComponent();
+          batchedConceptSetComponent.setSystem(codeSystem);
           batchedConceptSetComponent.setVersion(codeSystemVersion);
           batchedConceptSetComponent.setValueSet(List.of(new CanonicalType(finalReqScope)));
           batch.forEach(batchedConceptSetComponent::addConcept);
@@ -84,16 +86,18 @@ public class FhirService {
         });
         valueSetToExpand.getCompose().setInclude(conceptSetComponents);
       }
+
       int count = 0, offset = 0;
-      TerminologyClient terminologyClient = terminologyProvider.getClient();
+      final TerminologyClient terminologyClient = terminologyProvider.getClient();
       ValueSet responseVs = new ValueSet();
       try {
           responseVs = terminologyClient.expand(valueSetToExpand, new IntegerType(count), new IntegerType(offset), new BooleanType(false));
-      } catch (ResourceNotFoundException e) {
+      } catch (final ResourceNotFoundException e) {
+          log.warn("Unexpected failure when expanding ValueSet for target code validation", e);
           responseVs.setExpansion(new ValueSet.ValueSetExpansionComponent());
       }
-      ValueSet.ValueSetExpansionComponent expansion = responseVs.getExpansion();
-      List<ValueSet.ValueSetExpansionContainsComponent> contains = new ArrayList<>();
+      final ValueSet.ValueSetExpansionComponent expansion = responseVs.getExpansion();
+      final List<ValueSet.ValueSetExpansionContainsComponent> contains = new ArrayList<>();
 
       while (contains.size() < expansion.getTotal()) {
         offset = contains.size();
@@ -101,9 +105,9 @@ public class FhirService {
         if ((offset + count) > expansion.getTotal()) {
           count = expansion.getTotal() - offset;
         }
-        List<ValueSet> responseVss = new ArrayList<>();
-        int finalCount = count;
-        int finalOffset = offset;
+        final List<ValueSet> responseVss = new ArrayList<>();
+        final int finalCount = count;
+        final int finalOffset = offset;
         conceptSetComponents.forEach(component -> {
           valueSetToExpand.getCompose().setInclude(List.of(component));
           responseVss.add(terminologyClient.expand(valueSetToExpand, new IntegerType(finalCount), new IntegerType(finalOffset),
@@ -112,13 +116,13 @@ public class FhirService {
         responseVss.forEach(item -> contains.addAll(item.getExpansion().getContains()));
       }
 
-      Set<String> inactive = contains.stream()
+      final Set<String> inactive = contains.stream()
               .filter(ValueSet.ValueSetExpansionContainsComponent::getInactive)
               .map(ValueSet.ValueSetExpansionContainsComponent::getCode).collect(Collectors.toSet());
-      Set<String> active = contains.stream()
+      final Set<String> active = contains.stream()
               .filter(entry -> !entry.getInactive())
               .map(ValueSet.ValueSetExpansionContainsComponent::getCode).collect(Collectors.toSet());
-      Set<String> absent = new HashSet<String>(codes);
+      final Set<String> absent = new HashSet<String>(codes);
       absent.removeAll(inactive);
       absent.removeAll(active);
       return new ValidationResult(active.size(), inactive, absent, invalid);
@@ -127,7 +131,7 @@ public class FhirService {
     public static boolean isValidSctId(String code, RF2SchemaConstants.PartionIdentifier partition) {
         try {
             SnomedUtils.isValid(code, partition, true);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             return false;
         }
         return true;

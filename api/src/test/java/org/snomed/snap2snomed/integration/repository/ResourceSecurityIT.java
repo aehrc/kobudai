@@ -18,9 +18,9 @@ package org.snomed.snap2snomed.integration.repository;
 
 import static io.restassured.RestAssured.given;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.Set;
 import java.util.stream.Stream;
+
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -28,6 +28,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.snomed.snap2snomed.integration.IntegrationTestBase;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class ResourceSecurityIT extends IntegrationTestBase {
@@ -46,7 +48,7 @@ public class ResourceSecurityIT extends IntegrationTestBase {
         ),
         Arguments.of(
             "/maps/1",
-            restClient.createMapJson("MapVersion", "ToVersion", "ToScope", 0L, 0L)
+            restClient.createMapJson("MapVersion", "ToSystem", "ToVersion", "ToScope", 0L, 0L)
         ),
         Arguments.of(
             "/users/1",
@@ -80,7 +82,7 @@ public class ResourceSecurityIT extends IntegrationTestBase {
         Arguments.of("/projects/1",
             restClient.createProjectJson("ProjectDemo", "Demo Project", Set.of(), Set.of(), Set.of())),
         Arguments.of("/maps/1",
-            restClient.createMapJson("MapVersion", "ToVersion", "ToScope", 0L, 0L)),
+            restClient.createMapJson("MapVersion", "ToSystem", "ToVersion", "ToScope", 0L, 0L)),
         Arguments.of("/users/1", "{\"name\": \"John Wayne Smith\"}")
     );
   }
@@ -97,7 +99,7 @@ public class ResourceSecurityIT extends IntegrationTestBase {
         Arguments.of("/projects/1",
             restClient.createProjectJson("ProjectDemo", "Demo Project", Set.of(), Set.of(), Set.of())),
         Arguments.of("/maps/1",
-            restClient.createMapJson("MapVersion", "ToVersion", "ToScope", 0L, 0L)),
+            restClient.createMapJson("MapVersion", "ToSystem", "ToVersion", "ToScope", 0L, 0L)),
         Arguments.of("/users/1", "{\"name\": \"John Johnson\"}")
     );
   }

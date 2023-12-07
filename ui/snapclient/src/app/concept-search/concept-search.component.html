@@ -14,6 +14,7 @@
         <app-errormessage [error]="error"></app-errormessage>
 
         <app-concept-autosuggest *ngIf="autosuggest"
+                                 [system]="system"                                 
                                  [version]="version"
                                  [scope]="scope"
                                  [activeOnly]="activeOnly"

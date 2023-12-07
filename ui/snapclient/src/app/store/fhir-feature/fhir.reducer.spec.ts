@@ -31,7 +31,9 @@ describe('Fhir Reducer', () => {
     it('should return source', () => {
       let releases = new Map<string, Release[]>();
       let release : Release[] = [{
+        allCodes: '',
         edition: '',
+        system: '',
         version: '',
         uri: ''
       }];

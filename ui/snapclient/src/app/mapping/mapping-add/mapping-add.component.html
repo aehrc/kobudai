@@ -56,11 +56,20 @@
               <mat-icon>add</mat-icon>
             </button>
           </div>
+          <mat-form-field class="field-full-width">
+            <mat-label for="toSystemSelect">{{ 'MAP.TARGET_SYSTEM' | translate }}</mat-label>
+            <mat-select id="toSystemSelect" name="toSystem"
+                        [(ngModel)]="mappingModel.toSystem" (selectionChange)="changeSystem($event)" >
+              <mat-option *ngFor="let system of config.targetCodeSystems" [value]="system">
+                {{system}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
           <div class="source-field">
             <mat-form-field class="field-withbutton-width multi-field-row-field">
               <mat-label>{{ 'MAP.TARGET_EDITION' | translate }}</mat-label>
               <mat-select id="toEdition" name="toEdition" [(ngModel)]="selectedEdition"
-                          (selectionChange)="changeEdition($event)" required>
+                          (selectionChange)="changeEdition($event.value)" required>
                 <mat-option *ngFor="let elem of editionToVersionsMap | keyvalue" [value]="elem.key">
                   {{elem.key}}
                 </mat-option>
@@ -79,14 +88,23 @@
               <mat-error *ngIf="toVersion.invalid">{{ 'MAP.TARGET_VERSION_ERROR' | translate }}</mat-error>
             </mat-form-field>
             <button mat-mini-fab color="accent" type="button" title="{{ 'MAP.REFRESH_TARGET_VERSIONS' | translate }}"
-                    (click)="loadReleases()">
+                    (click)="loadReleases(mappingModel.toSystem)">
               <mat-icon>sync</mat-icon>
             </button>
           </div>
-          <mat-form-field class="field-full-width" hintLabel="{{'FORM.MAX_CHARS' | translate}} {{MAX_TARGETSCOPE}}">
-            <mat-label for="toScopeSelect">{{ 'MAP.TARGET_SCOPE_COMMON' | translate }}</mat-label>
-            <mat-select id="toScopeSelect" name="toScope"
+          <mat-form-field class="field-full-width" *ngIf="'http://snomed.info/sct' !== mappingModel.toSystem && '' !== mappingModel.toScope">
+            <mat-label for="toValueSet">{{ 'MAP.TARGET_SCOPE' | translate }}</mat-label>
+            <mat-select id="toValueSet" name="toValueSet"
                         [(ngModel)]="mappingModel.toScope">
+              <mat-option [value]="mappingModel.toScope">
+                {{mappingModel.toScope}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field class="field-full-width" hintLabel="{{'FORM.MAX_CHARS' | translate}} {{MAX_TARGETSCOPE}}" *ngIf="'http://snomed.info/sct' === mappingModel.toSystem">
+          <mat-label for="toScopeSelect">{{ 'MAP.TARGET_SCOPE_COMMON' | translate }}</mat-label>
+            <mat-select id="toScopeSelect" name="toScope"
+                        [(ngModel)]="eclScope" (selectionChange)="changeECL($event)">
               <mat-option value="*">{{ 'MAP.ECL_ANY' | translate }}</mat-option>
               <mat-option value="<< 404684003|Clinical finding|">{{ 'MAP.ECL_FINDINGS' | translate }}</mat-option>
               <mat-option value="<< 71388002|Procedure|">{{ 'MAP.ECL_PROCEDURES' | translate }}</mat-option>
@@ -95,12 +113,13 @@
               <mat-option>{{ 'MAP.ECL_CUSTOM' | translate }}</mat-option>
             </mat-select>
           </mat-form-field>
-          <mat-form-field class="field-full-width" hintLabel="{{'FORM.MAX_CHARS' | translate}} {{MAX_TARGETSCOPE}}">
+          <mat-form-field class="field-full-width" hintLabel="{{'FORM.MAX_CHARS' | translate}} {{MAX_TARGETSCOPE}}" *ngIf="'http://snomed.info/sct' === mappingModel.toSystem">
             <mat-label for="toScope">{{ 'MAP.TARGET_SCOPE' | translate }}</mat-label>
             <textarea id="toScope" class="ecl" matNativeControl
                       cdkTextareaAutosize
                       cdkAutosizeMinRows="2"
-                      matInput [(ngModel)]="mappingModel.toScope"
+                      matInput [(ngModel)]="eclScope"
+                      (change)="changeECL($event)"
                       name="toScope" #toscope="ngModel"
                       [maxLength]="MAX_TARGETSCOPE" [pattern]="VALID_STRING_PATTERN"
                       required></textarea>
@@ -141,7 +160,7 @@
               <tr>
                 <th><b>{{ 'MAP.TARGET' | translate }}:</b></th>
                 <td>
-                  <app-source-version [version]="mappingModel.toVersion"></app-source-version>
+                  <app-target-version [system]="mappingModel.toSystem" [version]="mappingModel.toVersion"></app-target-version>
                 </td>
               </tr>
               <tr>

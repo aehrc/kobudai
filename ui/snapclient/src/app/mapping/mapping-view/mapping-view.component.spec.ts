@@ -66,7 +66,7 @@ describe('MappingViewComponent', () => {
   mapping.project.title = 'Test Map';
 
   beforeEach(async (done) => {
-     await TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       imports: [
         RouterTestingModule,
         HttpClientTestingModule,

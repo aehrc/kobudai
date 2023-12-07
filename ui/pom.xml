@@ -31,7 +31,7 @@
   <version>0.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>snapagogo ui</name>
+  <name>Snapagogo UI</name>
 
   <properties>
     <prodEnvFile>env.prod</prodEnvFile>
@@ -128,7 +128,7 @@
         <version>3.3.0</version>
         <executions>
           <execution>
-            <id>copy-resources</id>
+            <id>copy-resources-filtered</id>
             <phase>generate-resources</phase>
             <goals>
               <goal>copy-resources</goal>
@@ -138,7 +138,29 @@
               <resources>
                 <resource>
                   <directory>${basedir}/snapclient/dist/snapclient</directory>
+                  <excludes>
+                    <exclude>**/Snap2X.pdf</exclude>
+                  </excludes>
                   <filtering>true</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy-resources-unfiltered</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/target/site</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${basedir}/snapclient/dist/snapclient</directory>
+                  <includes>
+                    <include>**/Snap2X.pdf</include>
+                  </includes>
+                  <filtering>false</filtering>
                 </resource>
               </resources>
             </configuration>

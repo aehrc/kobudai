@@ -16,6 +16,9 @@
 
 package org.snomed.snap2snomed.integration;
 
+import java.io.IOException;
+import java.util.Set;
+
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -23,12 +26,6 @@ import org.snomed.snap2snomed.controller.dto.MappingImportResponse;
 import org.snomed.snap2snomed.controller.dto.ValidationResult;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.Set;
-
-import static org.hamcrest.Matchers.is;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ValidateCodesIT extends IntegrationTestBase {
@@ -54,31 +51,31 @@ public class ValidateCodesIT extends IntegrationTestBase {
 
     @Test
     public void validateSampleData() throws Exception {
-        Long mapId = restClient.createMap("1", "http://snomed.info/sct/32506021000036107/version/20210731",
+        final Long mapId = restClient.createMap("1", "http://snomed.info/sct", "http://snomed.info/sct/32506021000036107/version/20210731",
                 "http://map.test.toscope", projectId, codeSetId);
-        MappingImportResponse mappingImportResponse = restClient.createImportedMap(0, 2, 3,
+        final MappingImportResponse mappingImportResponse = restClient.createImportedMap(0, 2, 3,
         4, -1, -1, true, ",", mapFileResource.getFile(), "text/csv", mapId);
         Assert.assertEquals(Integer.valueOf(1996), mappingImportResponse.getInsertCount());
         try {
-            ValidationResult validationResult = restClient.validateMapTargets(mapId);
+            final ValidationResult validationResult = restClient.validateMapTargets(mapId);
             Assert.assertNotNull("Validation result was not returned", validationResult);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             Assert.fail("Example map failed to validate");
         }
     }
 
     @Test
     public void validateMapWithEclComments() throws IOException {
-        Long mapId = restClient.createMap("2", "http://snomed.info/sct/32506021000036107/version/20210731",
-                "< 41146007 |Bacterium|", projectId, codeSetId);
-        MappingImportResponse mappingImportResponse = restClient.createImportedMap(0, 2, 3,
+        final Long mapId = restClient.createMap("2", "http://snomed.info/sct", "http://snomed.info/sct/32506021000036107/version/20210731",
+                "http://snomed.info/sct/32506021000036107/version/20210731?fhir_vs=ecl/< 41146007", projectId, codeSetId);
+        final MappingImportResponse mappingImportResponse = restClient.createImportedMap(0, 2, 3,
                 4, -1, -1, true, ",", mapFileResource.getFile(), "text/csv", mapId);
         Assert.assertEquals(Integer.valueOf(1996), mappingImportResponse.getInsertCount());
         try {
-            ValidationResult validationResult = restClient.validateMapTargets(mapId);
+            final ValidationResult validationResult = restClient.validateMapTargets(mapId);
             Assert.assertNotNull("Validation result was not returned", validationResult);
             Assert.assertTrue("Did not find any ACTIVE codes in FHIR server", validationResult.getActiveCount() > 0);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             Assert.fail("Example map failed to validate");
         }
     }

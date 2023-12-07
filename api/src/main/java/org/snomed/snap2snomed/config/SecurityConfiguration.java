@@ -42,9 +42,6 @@ public class SecurityConfiguration {
   Boolean useCognito;
 
   @NotBlank
-  String authDomainUrl;
-
-  @NotBlank
   String authLoginGrantType = "authorization_code";
 
   @NotBlank

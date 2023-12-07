@@ -100,9 +100,10 @@ export class AutomapComponent implements OnInit {
     if (!self.task_id || !self.mapping?.toScope || !self.mapping.toVersion) {
       return;
     }
-    const scope = self.mapping?.toScope;
-    const version: string = self.mapping.toVersion;
-
+    const system = self.mapping.toSystem;
+    const version = self.mapping.toVersion;
+    const scope = self.mapping.toScope;
+    
     self.mapService.getTaskAuthorRows(self.task_id).subscribe(
       (rows: AutomapRow[]) => {
         self.automapCount = 0;
@@ -138,6 +139,7 @@ export class AutomapComponent implements OnInit {
           fhirErrors: 0,
           backendErrors: 0,
           total: rows.length,
+          system,
           version,
           scope,
           mapViewIndex,
@@ -185,6 +187,7 @@ export class AutomapComponent implements OnInit {
   }
 
   automapRows(rows: AutomapRow[], id: number, context: {
+    system: string,
     version: string,
     scope: string,
     total: number,
@@ -203,7 +206,7 @@ export class AutomapComponent implements OnInit {
         return of(null);
       }
 
-      return self.fhirService.autoSuggest(row.display, context.version, context.scope, DEFAULT, true, 1, true).pipe(
+      return self.fhirService.autoSuggest(row.display, context.system, context.version, context.scope, DEFAULT, true, 1, true).pipe(
         map(matches => matches[0]),
         mergeMap(match => {
           if (match) {

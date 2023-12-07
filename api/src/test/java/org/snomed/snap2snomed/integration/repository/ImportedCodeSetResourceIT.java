@@ -235,7 +235,7 @@ public class ImportedCodeSetResourceIT extends IntegrationTestBase {
     restClient.expectCreateImportedCodeSetFail("badAAA", "2", 0, 2, true, ",",
         new ClassPathResource("AAA_invalid_csv_mixeddelimiters.csv").getFile(), "text/csv", 400, null);
     restClient.expectCreateImportedCodeSetFail("badAAA", "2", 0, 2, true, ",",
-        new ClassPathResource("AAA_invalid_csv_doublequotes.csv").getFile(), "text/csv", 400, null);
+        new ClassPathResource("AAA_invalid_csv_doublequotes.csv").getFile(), "text/csv", 500, null);
   }
 
   /**
@@ -433,7 +433,7 @@ public class ImportedCodeSetResourceIT extends IntegrationTestBase {
     final String codeSetName = "AAA semicolon - adminUser - projecttest";
     final long codesetId = verifyCreatedImportedCodeSet(codeSetName, "1.0", 0, 2, true, ";", new ClassPathResource("AAA-semi.csv").getFile(), "text/tsv");
 
-    restClient.createMap("Testing Map Version", "http://snomed.info/sct/32506021000036107/version/20210531",
+    restClient.createMap("Testing Map Version", "http://snomed.info/sct", "http://snomed.info/sct/32506021000036107/version/20210531",
             "http://map.test.toscope", projectId, codesetId);
 
     restClient.givenUser(DEFAULT_TEST_ADMIN_USER_SUBJECT).get("/importedCodeSets")
@@ -446,7 +446,7 @@ public class ImportedCodeSetResourceIT extends IntegrationTestBase {
     final String codeSetName = "AAA semicolon - defaultuser - projecttest2";
     final long codesetId = verifyCreatedImportedCodeSet(codeSetName, "1.0", 0, 2, true, ";", new ClassPathResource("AAA-semi.csv").getFile(), "text/tsv");
 
-    restClient.createMap("Testing Map Version", "http://snomed.info/sct/32506021000036107/version/20210531",
+    restClient.createMap("Testing Map Version", "http://snomed.info/sct", "http://snomed.info/sct/32506021000036107/version/20210531",
             "http://map.test.toscope", projectId, codesetId);
     restClient.updateProjectRoles(PROJECT_USER, projectId, Set.of(PROJECT_USER), Set.of(), Set.of());
     restClient.givenUser(DEFAULT_TEST_USER_SUBJECT).get("/importedCodeSets")

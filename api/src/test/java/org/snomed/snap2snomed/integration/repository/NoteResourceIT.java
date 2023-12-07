@@ -16,31 +16,32 @@
 
 package org.snomed.snap2snomed.integration.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+
 import java.io.IOException;
-import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.snomed.snap2snomed.integration.IntegrationTestBase;
-import io.restassured.filter.log.LogDetail;
 import org.snomed.snap2snomed.model.Note;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.greaterThan;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import io.restassured.filter.log.LogDetail;
 
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class NoteResourceIT extends IntegrationTestBase {
-  
+
   private Long projectId;
   private Long testImportedCodeSetId;
   private Long mapRowId;
@@ -70,7 +71,7 @@ public class NoteResourceIT extends IntegrationTestBase {
 
   @Test
   public void shouldDeleteNote() throws Exception {
-    long noteId = restClient.createNote(DEFAULT_TEST_USER_SUBJECT, mapRowId, "Test note");
+    final long noteId = restClient.createNote(DEFAULT_TEST_USER_SUBJECT, mapRowId, "Test note");
     restClient.givenDefaultUser()
               .delete("/notes/delete/" + String.valueOf(noteId))
               .then().statusCode(204);
@@ -87,9 +88,9 @@ public class NoteResourceIT extends IntegrationTestBase {
 
   @Test
   public void shouldNotListDeletedNotes() throws Exception {
-    long noteId = restClient.createNote(DEFAULT_TEST_USER_SUBJECT, mapRowId, "Test note");
+    final long noteId = restClient.createNote(DEFAULT_TEST_USER_SUBJECT, mapRowId, "Test note");
     restClient.createNote(DEFAULT_TEST_USER_SUBJECT, mapRowId, "Test note 2");
-    List<Note> content = restClient.givenDefaultUser()
+    final List<Note> content = restClient.givenDefaultUser()
                                    .queryParam("projection", "noteView")
                                    .queryParam("id", mapRowId)
                                    .get("/notes/search/findByMapRowId")
@@ -108,25 +109,25 @@ public class NoteResourceIT extends IntegrationTestBase {
 
   @Test
   public void shouldShowLatestNoteInMapView() throws Exception {
-    Long mapRowId2 = restClient.getMapRowId(mapId, "map1 row code 2.");
-    Long mapRowId3 = restClient.getMapRowId(mapId, "map1 row code 3.");
+    final Long mapRowId2 = restClient.getMapRowId(mapId, "map1 row code 2.");
+    final Long mapRowId3 = restClient.getMapRowId(mapId, "map1 row code 3.");
 
-    String note1Modified = restClient.givenDefaultUser().body(restClient.createNoteJson(mapRowId2, DEFAULT_TEST_USER_SUBJECT, "Maprow 2 - This is a test note 1"))
+    final String note1Modified = restClient.givenDefaultUser().body(restClient.createNoteJson(mapRowId2, DEFAULT_TEST_USER_SUBJECT, "Maprow 2 - This is a test note 1"))
         .post("/notes/").then().statusCode(201).extract().body().jsonPath().getString("modified");
 
     Thread.sleep(1100);
 
-    String note2Modified = restClient.givenDefaultUser().body(restClient.createNoteJson(mapRowId2, DEFAULT_TEST_USER_SUBJECT, "Maprow 2 - This is a test note 2"))
+    final String note2Modified = restClient.givenDefaultUser().body(restClient.createNoteJson(mapRowId2, DEFAULT_TEST_USER_SUBJECT, "Maprow 2 - This is a test note 2"))
         .post("/notes/").then().statusCode(201).extract().body().jsonPath().getString("modified");
 
     Thread.sleep(1200);
 
-    String note3Modified = restClient.givenDefaultUser().body(restClient.createNoteJson(mapRowId2, DEFAULT_TEST_USER_SUBJECT, "Maprow 2 - This is a test note 3"))
+    final String note3Modified = restClient.givenDefaultUser().body(restClient.createNoteJson(mapRowId2, DEFAULT_TEST_USER_SUBJECT, "Maprow 2 - This is a test note 3"))
         .post("/notes/").then().statusCode(201).extract().body().jsonPath().getString("modified");
 
     Thread.sleep(1400);
 
-    String note4Modified = restClient.givenDefaultUser().body(restClient.createNoteJson(mapRowId3, DEFAULT_TEST_USER_SUBJECT, "Maprow 3 - This is a test note 4"))
+    final String note4Modified = restClient.givenDefaultUser().body(restClient.createNoteJson(mapRowId3, DEFAULT_TEST_USER_SUBJECT, "Maprow 3 - This is a test note 4"))
         .post("/notes/").then().statusCode(201).extract().body().jsonPath().getString("modified");
 
     assertThat(parseTime(note1Modified))
@@ -171,10 +172,10 @@ public class NoteResourceIT extends IntegrationTestBase {
 
   private Long createDefaultMap() throws JsonProcessingException {
     return restClient.createMap("Testing Map Version",
-        "http://snomed.info/sct/32506021000036107/version/20210531", "http://map.test.toscope",
+            "http://snomed.info/sct", "http://snomed.info/sct/32506021000036107/version/20210531", "http://map.test.toscope",
         projectId, testImportedCodeSetId);
-  }  
- 
+  }
+
   private ZonedDateTime parseTime(String theTime) {
     return ZonedDateTime.parse(theTime.replace("\"", ""));
   }

@@ -24,13 +24,11 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import io.restassured.http.ContentType;
-import io.restassured.specification.RequestSpecification;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -40,6 +38,11 @@ import org.snomed.snap2snomed.integration.IntegrationTestBase;
 import org.snomed.snap2snomed.model.enumeration.MapStatus;
 import org.snomed.snap2snomed.model.enumeration.TaskType;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import io.restassured.http.ContentType;
+import io.restassured.specification.RequestSpecification;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class TaskResourceIT extends IntegrationTestBase {
@@ -74,10 +77,10 @@ public class TaskResourceIT extends IntegrationTestBase {
 
     codesetId = restClient.createImportedCodeSet("test code set", "1.2.3", 34);
 
-    mapId = restClient.createMap("Testing Map Version", "http://snomed.info/sct/32506021000036107/version/20210531",
+    mapId = restClient.createMap("Testing Map Version", "http://snomed.info/sct", "http://snomed.info/sct/32506021000036107/version/20210531",
         "http://map.test.toscope", projectId, codesetId);
 
-    Long setupAuthorTask = restClient.createTask("setup", TaskType.AUTHOR, mapId, "setup", "1-4",
+    final Long setupAuthorTask = restClient.createTask("setup", TaskType.AUTHOR, mapId, "setup", "1-4",
         false, false, "Description");
 
     restClient.updateNoMapAndStatus("setup", mapId, "map row code " + 1 + ".", true, MapStatus.MAPPED);
@@ -87,7 +90,7 @@ public class TaskResourceIT extends IntegrationTestBase {
 
     restClient.deleteTask(setupAuthorTask);
 
-    Long setupReviewTask = restClient.createTask("setup", TaskType.REVIEW, mapId, "setup", "1-4",
+    final Long setupReviewTask = restClient.createTask("setup", TaskType.REVIEW, mapId, "setup", "1-4",
         true, false, "Description");
 
     restClient.updateNoMapAndStatus("setup", mapId, "map row code " + 2 + ".", null, MapStatus.INREVIEW);
@@ -101,7 +104,7 @@ public class TaskResourceIT extends IntegrationTestBase {
 
     codeset2Id = restClient.createImportedCodeSet("test code set 2", "1.2.3", 2037);
 
-    map2Id = restClient.createMap("Testing Map Version 2", "http://snomed.info/sct/32506021000036107/version/20210531",
+    map2Id = restClient.createMap("Testing Map Version 2", "http://snomed.info/sct", "http://snomed.info/sct/32506021000036107/version/20210531",
         "http://map.test.toscope", projectId, codeset2Id);
 
   }
@@ -116,7 +119,7 @@ public class TaskResourceIT extends IntegrationTestBase {
 
   @Test
   public void testCreate() throws IOException {
-    Long taskId = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT, "1,2,3,15-24,20-40",
+    final Long taskId = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT, "1,2,3,15-24,20-40",
         false, false, "Description");
 
     restClient.givenDefaultUser()
@@ -162,7 +165,7 @@ public class TaskResourceIT extends IntegrationTestBase {
         "User Member User is not authorised to assign a task to Test User in project Testing Project Title",
         "A project member can only assign tasks to themselves.");
 
-    Long taskId = restClient.createTask(MEMBER_TEST_USER, TaskType.AUTHOR, mapId, MEMBER_TEST_USER, "1,2,3,15-24,20-40", false, false,
+    final Long taskId = restClient.createTask(MEMBER_TEST_USER, TaskType.AUTHOR, mapId, MEMBER_TEST_USER, "1,2,3,15-24,20-40", false, false,
         null);
 
     restClient.expectUpdateProjectRolesFailure(DEFAULT_TEST_USER_SUBJECT, projectId,
@@ -224,9 +227,9 @@ public class TaskResourceIT extends IntegrationTestBase {
 
   @Test
   public void failCreateEntityIntersection() throws IOException {
-    long authorTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
+    final long authorTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
         "1-5,3,7,15,10-20", false, false, null);
-    long reviewTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.REVIEW, mapId, DEFAULT_TEST_USER_SUBJECT, "2,3,15-24,20-40",
+    final long reviewTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.REVIEW, mapId, DEFAULT_TEST_USER_SUBJECT, "2,3,15-24,20-40",
         true, false, null);
     restClient.givenDefaultUser()
         .body(restClient.createTaskJson(TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT, "1,2,3,15-24,20-40", false, false, null))
@@ -294,7 +297,7 @@ public class TaskResourceIT extends IntegrationTestBase {
         .body("indexSpecificationWithAllConflictsRemoved.specification", is("21-34"))
         .body("indexSpecificationWithAllConflictsRemoved.count", is(14));
 
-    long taskWithOverride = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
+    final long taskWithOverride = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
         "1,2,3,15-24,20-40", true, true, null);
 
     restClient.deleteTask(taskWithOverride);
@@ -316,10 +319,10 @@ public class TaskResourceIT extends IntegrationTestBase {
   }
 
   private void testAuthorReviewTaskConflict(TaskType taskOneType, TaskType taskTwoType, boolean override) throws Exception {
-    long task1 = restClient.createTask(taskOneType, mapId, DEFAULT_TEST_USER_SUBJECT, "1,2,3,15-24,20-40");
+    final long task1 = restClient.createTask(taskOneType, mapId, DEFAULT_TEST_USER_SUBJECT, "1,2,3,15-24,20-40");
 
     if (override) {
-      long task2 = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, taskTwoType, mapId, DEFAULT_TEST_USER_SUBJECT, "1-3,15-34",
+      final long task2 = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, taskTwoType, mapId, DEFAULT_TEST_USER_SUBJECT, "1-3,15-34",
           true, false, null);
 
       restClient.deleteTask(task2);
@@ -352,10 +355,10 @@ public class TaskResourceIT extends IntegrationTestBase {
 
   @Test
   public void shouldCreateEntityOverlappingSourceRowSpecificationOverride() throws Exception {
-    long authorTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
+    final long authorTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
         "1-5,3,7,15,10-20", false, false, null);
 
-    long overlappingTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
+    final long overlappingTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
         "1-5,3,7,15,10-20", false, true, null);
 
     //new task took all the rows, so the old one is deleted
@@ -365,7 +368,7 @@ public class TaskResourceIT extends IntegrationTestBase {
 
   @Test
   public void failCreateEntityOverlappingSourceRowSpecification() throws Exception {
-    long authorTask = restClient.createTask(TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT, "1-5,3,7,15,10-20");
+    final long authorTask = restClient.createTask(TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT, "1-5,3,7,15,10-20");
 
     // overlapping
     restClient.givenDefaultUser()
@@ -391,11 +394,11 @@ public class TaskResourceIT extends IntegrationTestBase {
         .body("indexSpecificationWithAllConflictsRemoved.count", is(14));
 
     // not overlapping
-    long secondTask = restClient.createTask(TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT, "6,8,9");
+    final long secondTask = restClient.createTask(TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT, "6,8,9");
 
     restClient.deleteTask(authorTask);
 
-    long overlappingOriginal = restClient.createTask(TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT, "1,2,3,15-24,20-40");
+    final long overlappingOriginal = restClient.createTask(TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT, "1,2,3,15-24,20-40");
 
     restClient.deleteTask(secondTask);
     restClient.deleteTask(overlappingOriginal);
@@ -404,7 +407,7 @@ public class TaskResourceIT extends IntegrationTestBase {
 
   @Test
   public void shouldCreateEntityLongSourceRowSpec() throws Exception {
-    long authorTask = restClient.createTask(TaskType.AUTHOR, map2Id, DEFAULT_TEST_USER_SUBJECT,
+    final long authorTask = restClient.createTask(TaskType.AUTHOR, map2Id, DEFAULT_TEST_USER_SUBJECT,
         "137,146,186,222,488-524,597-625,660-673,691-698,751-753,764-768,839-843,859,861-862,951-952,1165-1168,1170,1172-1174,1176-1220,1222-1223,1226-1236,1252,1254,1264-1267,1422-1423,1466-1494,1498,1726,1740,1788,1823-1828,1837-1839,1850-1853,1882,1901-1903,1920,1925-1927,1960-1962,1984,2007,2031-2034,2038");
 
     restClient.givenDefaultUser()
@@ -418,15 +421,15 @@ public class TaskResourceIT extends IntegrationTestBase {
 
   @Test
   public void shouldUpdateTask() throws Exception {
-    Instant now = Instant.now();
+    final Instant now = Instant.now();
 
-    long authorTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
+    final long authorTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
         "1-5,3,7,15,10-20", false, false, null);
     // changes to type and user are ignored
 
     validateCreatedAndModifiedAudit(now, null, "/tasks/" + authorTask, DEFAULT_TEST_USER_SUBJECT, DEFAULT_TEST_USER_SUBJECT);
 
-    Instant later = Instant.now();
+    final Instant later = Instant.now();
 
     restClient.updateTask(OWNER_TEST_USER, authorTask, TaskType.REVIEW, map2Id, GUEST_TEST_USER, "1-5,3,7", false,
         false, "new description");
@@ -466,10 +469,10 @@ public class TaskResourceIT extends IntegrationTestBase {
 
   @Test
   public void shouldCreateReviewTask() throws Exception {
-    long authorTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
+    final long authorTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
         "1-5,3,7,15,10-20", false, false, null);
 
-    long reviewTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.REVIEW, mapId, GUEST_TEST_USER,
+    final long reviewTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.REVIEW, mapId, GUEST_TEST_USER,
         "1-5,3,7,15,10-20", false, false, null);
 
     restClient.deleteTask(authorTask);
@@ -478,7 +481,7 @@ public class TaskResourceIT extends IntegrationTestBase {
 
   @Test
   public void failDeleteTaskNotOwner() throws Exception {
-    long authorTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
+    final long authorTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
         "1-5,3,7,15,10-20", false, false, null);
 
     restClient.expectDeleteTaskFailure(MEMBER_TEST_USER, authorTask, 403);
@@ -494,7 +497,7 @@ public class TaskResourceIT extends IntegrationTestBase {
     restClient.updateProjectRoles(DEFAULT_TEST_USER_SUBJECT, projectId,
         Set.of(DEFAULT_TEST_USER_SUBJECT, "second-owner"), Set.of(MEMBER_TEST_USER), Set.of(GUEST_TEST_USER));
 
-    long authorTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
+    final long authorTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
         "1-3", false, false, null);
 
     restClient.completeTask(MEMBER_TEST_USER, authorTask, 403);
@@ -515,7 +518,7 @@ public class TaskResourceIT extends IntegrationTestBase {
     restClient.updateProjectRoles(DEFAULT_TEST_USER_SUBJECT, projectId,
         Set.of(DEFAULT_TEST_USER_SUBJECT, "second-owner"), Set.of(MEMBER_TEST_USER), Set.of(GUEST_TEST_USER));
 
-    long reviewTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.REVIEW, mapId, DEFAULT_TEST_USER_SUBJECT,
+    final long reviewTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.REVIEW, mapId, DEFAULT_TEST_USER_SUBJECT,
         "3,4", false, false, null);
 
     restClient.completeTask(MEMBER_TEST_USER, reviewTask, 403);
@@ -530,7 +533,7 @@ public class TaskResourceIT extends IntegrationTestBase {
 
   @Test
   public void failCompleteTaskIncompleteRowsAuthor() throws Exception {
-    long authorTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.REVIEW, mapId, DEFAULT_TEST_USER_SUBJECT,
+    final long authorTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.REVIEW, mapId, DEFAULT_TEST_USER_SUBJECT,
         "5", false, false, null);
 
     restClient.completeTask(DEFAULT_TEST_USER_SUBJECT, authorTask, 400);
@@ -540,7 +543,7 @@ public class TaskResourceIT extends IntegrationTestBase {
 
   @Test
   public void failCompleteTaskIncompleteRowsReviewer() throws Exception {
-    long reviewTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.REVIEW, mapId, DEFAULT_TEST_USER_SUBJECT,
+    final long reviewTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.REVIEW, mapId, DEFAULT_TEST_USER_SUBJECT,
         "5", false, false, null);
 
     restClient.completeTask(DEFAULT_TEST_USER_SUBJECT, reviewTask, 400);
@@ -594,7 +597,7 @@ public class TaskResourceIT extends IntegrationTestBase {
     restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, map2Id, DEFAULT_TEST_USER_SUBJECT,
             "1-3", false, false, null);
 
-    RequestSpecification adminUser = restClient.givenUserWithGroup(DEFAULT_TEST_ADMIN_USER_SUBJECT,
+    final RequestSpecification adminUser = restClient.givenUserWithGroup(DEFAULT_TEST_ADMIN_USER_SUBJECT,
             ContentType.JSON.getContentTypeStrings()[0],
             ContentType.JSON,
             config.getSecurity().getAdminGroup());
@@ -611,7 +614,7 @@ public class TaskResourceIT extends IntegrationTestBase {
 
   @Test
   public void shouldGetTaskRowCount() throws Exception {
-    long authorTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
+    final long authorTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
         "1-4", false, false, null);
 
     restClient.givenDefaultUser()
@@ -622,7 +625,7 @@ public class TaskResourceIT extends IntegrationTestBase {
 
     restClient.deleteTask(authorTask);
 
-    long reviewTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.REVIEW, mapId, DEFAULT_TEST_USER_SUBJECT,
+    final long reviewTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.REVIEW, mapId, DEFAULT_TEST_USER_SUBJECT,
         "1-4", false, false, null);
 
     restClient.givenDefaultUser()
@@ -636,7 +639,7 @@ public class TaskResourceIT extends IntegrationTestBase {
 
   @Test
   public void failGetTaskRowCountNotProjectMember() throws Exception {
-    long authorTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
+    final long authorTask = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
         "1-4", false, false, null);
 
     restClient.givenUser(NO_ROLE_TEST_USER)
@@ -648,7 +651,7 @@ public class TaskResourceIT extends IntegrationTestBase {
 
   @Test
   public void shouldGetAutoMapRows() throws Exception {
-    long task = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
+    final long task = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
         "1-5", false, false, null);
 
     restClient.givenDefaultUser()
@@ -662,7 +665,7 @@ public class TaskResourceIT extends IntegrationTestBase {
 
   @Test
   public void shouldNotGetAutoMapRowsReviewTask() throws Exception {
-    long task = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.REVIEW, mapId, DEFAULT_TEST_USER_SUBJECT,
+    final long task = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.REVIEW, mapId, DEFAULT_TEST_USER_SUBJECT,
         "1-5", false, false, null);
 
     restClient.givenDefaultUser()
@@ -675,7 +678,7 @@ public class TaskResourceIT extends IntegrationTestBase {
 
   @Test
   public void shouldNotGetAutoMapRowsNoRows() throws Exception {
-    long task = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
+    final long task = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
         "1-4", false, false, null);
 
     restClient.givenDefaultUser()
@@ -688,7 +691,7 @@ public class TaskResourceIT extends IntegrationTestBase {
 
   @Test
   public void failGetAutoMapRowsNotAssignee() throws Exception {
-    long task = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.REVIEW, mapId, DEFAULT_TEST_USER_SUBJECT,
+    final long task = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.REVIEW, mapId, DEFAULT_TEST_USER_SUBJECT,
         "1-5", false, false, null);
 
     restClient.givenUser(MEMBER_TEST_USER)
@@ -718,9 +721,9 @@ public class TaskResourceIT extends IntegrationTestBase {
 
   @Test
   public void shouldDeleteTaskAsAdmin() throws Exception {
-    long task = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
+    final long task = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT,
             "5-10", false, false, null);
-    RequestSpecification adminUser = restClient.givenUserWithGroup(DEFAULT_TEST_ADMIN_USER_SUBJECT,
+    final RequestSpecification adminUser = restClient.givenUserWithGroup(DEFAULT_TEST_ADMIN_USER_SUBJECT,
             ContentType.JSON.getContentTypeStrings()[0],
             ContentType.JSON,
             config.getSecurity().getAdminGroup());

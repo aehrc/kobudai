@@ -22,6 +22,7 @@ import lombok.Data;
 public class MapCloneDto {
   private Long sourceId;
   private String mapVersion;
+  private String toSystem;
   private String toVersion;
   private String toScope;
 }

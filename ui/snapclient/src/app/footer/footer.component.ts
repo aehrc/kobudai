@@ -25,14 +25,18 @@ import {MatDialog} from "@angular/material/dialog";
   styleUrls: ['./footer.component.css']
 })
 export class FooterComponent implements OnInit {
-  si: string;
+  provider: string;
+  providerUrl: string;
   tos: string;
   privacy: string;
+  canFeedback: boolean;
 
   constructor(@Inject(APP_CONFIG) private config: AppConfig, public dialog: MatDialog) {
-    this.si = 'http://www.snomed.org';
+    this.provider = config.provider;
+    this.providerUrl = config.providerUrl;
     this.tos = config.termsOfServiceUrl;
     this.privacy = config.privacyPolicyUrl;
+    this.canFeedback = !!config.feedbackUrl;
   }
 
   ngOnInit(): void {
@@ -41,7 +45,7 @@ export class FooterComponent implements OnInit {
   showFeedback() : boolean{
     this.dialog.open(FeedbackWidgetComponent, {
       height: '600px',
-      width: '600px',
+      width: '800px',
       closeOnNavigation: true
     });
     return false;

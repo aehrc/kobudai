@@ -16,11 +16,19 @@
 
 package org.snomed.snap2snomed.integration.repository;
 
-import io.restassured.filter.log.LogDetail;
-import io.restassured.http.ContentType;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Set;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -30,7 +38,8 @@ import org.snomed.snap2snomed.model.enumeration.MappingRelationship;
 import org.snomed.snap2snomed.model.enumeration.TaskType;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.hamcrest.Matchers.*;
+import io.restassured.filter.log.LogDetail;
+import io.restassured.http.ContentType;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class ProjectResourceIT extends IntegrationTestBase {
@@ -50,7 +59,7 @@ public class ProjectResourceIT extends IntegrationTestBase {
 
   @Test
   public void shouldCreateEntity() throws Exception {
-    long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(DEFAULT_TEST_USER_SUBJECT), Set.of(), Set.of());
+    final long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(DEFAULT_TEST_USER_SUBJECT), Set.of(), Set.of());
 
     restClient.givenDefaultUser()
         .queryParam("projection", "listUsers")
@@ -64,7 +73,7 @@ public class ProjectResourceIT extends IntegrationTestBase {
   @Test
   public void shouldCreateEntityNoUser() throws Exception {
     //default owner to the logged in user
-    long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(), Set.of());
+    final long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(), Set.of());
 
     restClient.givenDefaultUser()
         .queryParam("projection", "listUsers")
@@ -77,7 +86,7 @@ public class ProjectResourceIT extends IntegrationTestBase {
 
   @Test
   public void shouldCreateEntityAdditionalUser() throws Exception {
-    long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(EXTRA_USER), Set.of(), Set.of());
+    final long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(EXTRA_USER), Set.of(), Set.of());
 
     restClient.givenDefaultUser()
         .queryParam("projection", "listUsers")
@@ -91,7 +100,7 @@ public class ProjectResourceIT extends IntegrationTestBase {
 
   @Test
   public void shouldCreateEntityWithMember() throws Exception {
-    long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(EXTRA_USER), Set.of());
+    final long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(EXTRA_USER), Set.of());
 
     restClient.givenDefaultUser()
         .queryParam("projection", "listUsers")
@@ -105,7 +114,7 @@ public class ProjectResourceIT extends IntegrationTestBase {
 
   @Test
   public void shouldCreateEntityWithGuest() throws Exception {
-    long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(), Set.of(EXTRA_USER));
+    final long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(), Set.of(EXTRA_USER));
 
     restClient.givenDefaultUser()
         .queryParam("projection", "listUsers")
@@ -119,7 +128,7 @@ public class ProjectResourceIT extends IntegrationTestBase {
 
   @Test
   public void shouldCreateEntityWithMemberAndGuest() throws Exception {
-    long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(EXTRA_USER), Set.of(ANOTHER_EXTRA_USER));
+    final long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(EXTRA_USER), Set.of(ANOTHER_EXTRA_USER));
 
     restClient.givenDefaultUser()
         .queryParam("projection", "listUsers")
@@ -143,7 +152,7 @@ public class ProjectResourceIT extends IntegrationTestBase {
 
   @Test
   public void failUpdateUserInMultipleRoles() throws Exception {
-    long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(EXTRA_USER), Set.of(ANOTHER_EXTRA_USER));
+    final long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(EXTRA_USER), Set.of(ANOTHER_EXTRA_USER));
 
     restClient.expectUpdateProjectRolesFailure(DEFAULT_TEST_USER_SUBJECT, id, Set.of(DEFAULT_TEST_USER_SUBJECT),
         Set.of(EXTRA_USER, ANOTHER_EXTRA_USER), Set.of(ANOTHER_EXTRA_USER), 400, "A user can only hold one project role at a time", null);
@@ -167,7 +176,7 @@ public class ProjectResourceIT extends IntegrationTestBase {
 
   @Test
   public void failDeleteLastOwner() throws Exception {
-    long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(EXTRA_USER), Set.of(ANOTHER_EXTRA_USER));
+    final long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(EXTRA_USER), Set.of(ANOTHER_EXTRA_USER));
 
     restClient.expectUpdateProjectRolesFailure(DEFAULT_TEST_USER_SUBJECT, id, Set.of(), Set.of(EXTRA_USER), Set.of(ANOTHER_EXTRA_USER), 400,
         "Constraint Violation", null);
@@ -177,7 +186,7 @@ public class ProjectResourceIT extends IntegrationTestBase {
 
   @Test
   public void failUpdateEntity() throws Exception {
-    long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(EXTRA_USER), Set.of(ANOTHER_EXTRA_USER));
+    final long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(EXTRA_USER), Set.of(ANOTHER_EXTRA_USER));
 
     restClient.givenDefaultUser()
         .body(restClient.createProjectJson("ProjectDemo", "Demo Project change", Set.of(), Set.of(EXTRA_USER), Set.of(ANOTHER_EXTRA_USER)))
@@ -202,11 +211,11 @@ public class ProjectResourceIT extends IntegrationTestBase {
 
   @Test
   public void shouldPartialUpdateEntity() throws Exception {
-    Instant start = Instant.now();
+    final Instant start = Instant.now();
 
-    long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(EXTRA_USER), Set.of(ANOTHER_EXTRA_USER));
+    final long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(EXTRA_USER), Set.of(ANOTHER_EXTRA_USER));
 
-    String path = "/projects/" + id;
+    final String path = "/projects/" + id;
 
     validateNumberOfRevisions(path, 1);
     validateCreatedAndModifiedAudit(start, null, path, DEFAULT_TEST_USER_SUBJECT, DEFAULT_TEST_USER_SUBJECT);
@@ -219,7 +228,7 @@ public class ProjectResourceIT extends IntegrationTestBase {
     validateNumberOfRevisions(path, 2);
     validateCreatedAndModifiedAudit(start, null, path, DEFAULT_TEST_USER_SUBJECT, DEFAULT_TEST_USER_SUBJECT);
 
-    Instant later = Instant.now();
+    final Instant later = Instant.now();
     restClient.givenDefaultUser()
         .body(restClient.createProjectJson("ProjectDemo", "Demo Project change", Set.of(DEFAULT_TEST_USER_SUBJECT), Set.of(EXTRA_USER),
             Set.of(ANOTHER_EXTRA_USER)))
@@ -247,7 +256,7 @@ public class ProjectResourceIT extends IntegrationTestBase {
 
  @Test
  public void failRetrieveEntityUnknownUser() throws Exception {
-   long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(EXTRA_USER), Set.of(ANOTHER_EXTRA_USER));
+   final long id = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(EXTRA_USER), Set.of(ANOTHER_EXTRA_USER));
 
    restClient.givenUser("does-not-exist")
        .get("/projects/" + id)
@@ -256,11 +265,11 @@ public class ProjectResourceIT extends IntegrationTestBase {
 
   @Test
   public void shouldRetrieveEntitiesWithListProjection() throws Exception {
-    long projectId = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(EXTRA_USER), Set.of(ANOTHER_EXTRA_USER));
+    final long projectId = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(EXTRA_USER), Set.of(ANOTHER_EXTRA_USER));
 
-    long codesetId = restClient.createImportedCodeSet("test code set", "1.2.3", 34);
+    final long codesetId = restClient.createImportedCodeSet("test code set", "1.2.3", 34);
 
-    long mapId = restClient.createMap("Testing Map Version", "http://snomed.info/sct/32506021000036107/version/20210531",
+    final long mapId = restClient.createMap("Testing Map Version", "http://snomed.info/sct", "http://snomed.info/sct/32506021000036107/version/20210531",
         "http://map.test.toscope", projectId, codesetId);
 
     restClient.givenDefaultUser()
@@ -279,7 +288,7 @@ public class ProjectResourceIT extends IntegrationTestBase {
    */
   @Test
   public void failDeleteEntity() throws Exception {
-    long projectId = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(EXTRA_USER), Set.of(ANOTHER_EXTRA_USER));
+    final long projectId = restClient.createProject("ProjectDemo", "Demo Project", Set.of(), Set.of(EXTRA_USER), Set.of(ANOTHER_EXTRA_USER));
 
     restClient.givenDefaultUser().delete("/projects/" + projectId).then().statusCode(405);
     restClient.givenUser(EXTRA_USER).delete("/projects/delete/" + projectId).then().statusCode(405);
@@ -288,17 +297,17 @@ public class ProjectResourceIT extends IntegrationTestBase {
   @Test
   public void shouldListProjectForUserWithRole() throws Exception {
 
-    String owner = "shouldListProjectForUserWithRole-owner";
-    String member = "shouldListProjectForUserWithRole-member";
-    String guest = "shouldListProjectForUserWithRole-guest";
-    String noRole = "shouldListProjectForUserWithRole-no-role";
+    final String owner = "shouldListProjectForUserWithRole-owner";
+    final String member = "shouldListProjectForUserWithRole-member";
+    final String guest = "shouldListProjectForUserWithRole-guest";
+    final String noRole = "shouldListProjectForUserWithRole-no-role";
 
     restClient.createOrUpdateUser(owner, "Test", "Bobby", "User", "shouldListProjectForUserWithRole-owner@user.com");
     restClient.createOrUpdateUser(member, "Frank", "Bobby", "Smith", "shouldListProjectForUserWithRole-member@user.com");
     restClient.createOrUpdateUser(guest, "Another", "Bobby", "Smith", "shouldListProjectForUserWithRole-guest@user.com");
     restClient.createOrUpdateUser(noRole, "No", "Bobby", "Role", "shouldListProjectForUserWithRole-no-role@user.com");
 
-    long projectId = restClient.createProject(owner, "ProjectDemo", "Demo Project", Set.of(), Set.of(member), Set.of(guest));
+    final long projectId = restClient.createProject(owner, "ProjectDemo", "Demo Project", Set.of(), Set.of(member), Set.of(guest));
 
     restClient.givenUser(owner).get("/projects")
         .then().statusCode(200)
@@ -333,9 +342,9 @@ public class ProjectResourceIT extends IntegrationTestBase {
     restClient.createOrUpdateUser("user01", "Test", "Bobby", "User", "user01@user.com");
     restClient.createOrUpdateUser("user02", "Test", "Bobby", "User", "user02@user.com");
 
-    long id1 = restClient.createProject("ProjectDemo1", "Demo Project1", Set.of("user01"), Set.of(), Set.of());
-    long id2 = restClient.createProject("ProjectDemo2", "Demo Project2", Set.of("user01"), Set.of(), Set.of());
-    long id3 = restClient.createProject("ProjectDemo3", "Demo Project3", Set.of("user02"), Set.of(), Set.of());
+    final long id1 = restClient.createProject("ProjectDemo1", "Demo Project1", Set.of("user01"), Set.of(), Set.of());
+    final long id2 = restClient.createProject("ProjectDemo2", "Demo Project2", Set.of("user01"), Set.of(), Set.of());
+    final long id3 = restClient.createProject("ProjectDemo3", "Demo Project3", Set.of("user02"), Set.of(), Set.of());
 
     restClient.givenUser("user01")
         .queryParam("projection", "listView")
@@ -356,7 +365,7 @@ public class ProjectResourceIT extends IntegrationTestBase {
   @Test
   public void shouldGetProjectsResultsForFilter() throws Exception {
     restClient.createOrUpdateAdminUser(DEFAULT_TEST_ADMIN_USER_SUBJECT, "TestAdmin", "BobbyAdmin", "UserAdmin", "admin@admin.com");
-    long id = restClient.createProject("ProjectDemoMatch", "Demo Project", Set.of(DEFAULT_TEST_USER_SUBJECT), Set.of(),
+    final long id = restClient.createProject("ProjectDemoMatch", "Demo Project", Set.of(DEFAULT_TEST_USER_SUBJECT), Set.of(),
         Set.of());
 
     restClient.givenUser(DEFAULT_TEST_USER_SUBJECT)
@@ -395,21 +404,21 @@ public class ProjectResourceIT extends IntegrationTestBase {
   @Test
   public void shouldDeleteProjectAndRelatedEntities() throws Exception {
     restClient.createOrUpdateAdminUser(DEFAULT_TEST_ADMIN_USER_SUBJECT, "TestAdmin", "BobbyAdmin", "UserAdmin", "admin@admin.com");
-    long id = restClient.createProject("ToDelete", "Delete Project", Set.of(DEFAULT_TEST_ADMIN_USER_SUBJECT),
+    final long id = restClient.createProject("ToDelete", "Delete Project", Set.of(DEFAULT_TEST_ADMIN_USER_SUBJECT),
         Set.of(), Set.of());
 
-    long codesetId = restClient.createImportedCodeSet("delete code set", "1.2.3", 34);
+    final long codesetId = restClient.createImportedCodeSet("delete code set", "1.2.3", 34);
 
-    long mapId = restClient.createMap("Delete Map Version", "http://snomed.info/sct/32506021000036107/version/20210531",
+    final long mapId = restClient.createMap("Delete Map Version", "http://snomed.info/sct", "http://snomed.info/sct/32506021000036107/version/20210531",
         "http://map.test.toscope", id, codesetId);
 
-    long taskId = restClient.createTask(TaskType.AUTHOR, mapId, DEFAULT_TEST_ADMIN_USER_SUBJECT, "1");
+    final long taskId = restClient.createTask(TaskType.AUTHOR, mapId, DEFAULT_TEST_ADMIN_USER_SUBJECT, "1");
 
-    long mapRowTargetId = restClient.createTarget(DEFAULT_TEST_ADMIN_USER_SUBJECT, mapId, "map row code 1.", "target",
+    final long mapRowTargetId = restClient.createTarget(DEFAULT_TEST_ADMIN_USER_SUBJECT, mapId, "map row code 1.", "target",
         "display", MappingRelationship.TARGET_EQUIVALENT, false);
 
-    long mapRowId = restClient.getMapRowId(mapId, "");
-    long noteId = restClient.createNote(DEFAULT_TEST_USER_SUBJECT, mapRowId, "This is a test note");
+    final long mapRowId = restClient.getMapRowId(mapId, "");
+    final long noteId = restClient.createNote(DEFAULT_TEST_USER_SUBJECT, mapRowId, "This is a test note");
 
     restClient.givenUser(DEFAULT_TEST_ADMIN_USER_SUBJECT)
               .get("/maps/" + mapId)
@@ -426,7 +435,7 @@ public class ProjectResourceIT extends IntegrationTestBase {
     restClient.givenUser(DEFAULT_TEST_ADMIN_USER_SUBJECT)
               .queryParam("projection", "targetView")
               .queryParam("row.sourceCode.index", "1")
-              .queryParam("row.map.id", mapId)
+              .queryParam("mapId", mapId)
               .get("/mapRowTargets")
               .then().statusCode(200)
               .body("page.totalElements", equalTo(1));
@@ -446,7 +455,7 @@ public class ProjectResourceIT extends IntegrationTestBase {
     restClient.givenUser(DEFAULT_TEST_ADMIN_USER_SUBJECT)
               .queryParam("projection", "targetView")
               .queryParam("row.sourceCode.index", "1")
-              .queryParam("row.map.id", mapId)
+              .queryParam("mapId", mapId)
               .get("/mapRowTargets")
               .then().statusCode(200)
               .body("page.totalElements", equalTo(0));

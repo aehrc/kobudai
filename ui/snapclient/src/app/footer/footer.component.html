@@ -1,10 +1,11 @@
 <footer>
   <div class="container-fluid">
     <div>
-      <a class="footer-link" title="Snomed International" [href]="si">Copyright 2022 SNOMED International</a>
+      <span class="footer-link">Copyright &copy; 2022-2023</span>
+      <a class="footer-link" title="{{provider}}" [href]="providerUrl">{{provider}}</a>
       <a class="footer-link" title="Terms of service" [href]="tos">Terms Of Service</a>
       <a class="footer-link" title= "Privacy policy" [href]="privacy">Privacy Policy</a>
-      <a class="footer-link" title= "Feedback" (click)="showFeedback()" href="">Feedback</a>
+      <a class="footer-link" title= "Feedback" (click)="showFeedback()" href="" *ngIf="canFeedback">Feedback</a>
     </div>
   </div>
 </footer>

@@ -18,6 +18,7 @@ package org.snomed.snap2snomed.config;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,7 +44,16 @@ public class Snap2snomedConfiguration {
   boolean production = true;
 
   @NotBlank
-  String applicationInstanceName = "Snap2SNOMED";
+  String applicationInstanceName = "Snapagogo";
+
+  @NotBlank
+  String applicationInstanceSummary = "A hosted tool for collaboratively creating and maintaining simple maps to FHIR Code Systems.";
+
+  @NotBlank
+  String logo = "assets/img/logo.png";
+
+  @NotBlank
+  String bannerLogo = "assets/img/aehrc_logo.png";
 
   @NotBlank
   String defaultLanguage = "en";
@@ -51,23 +61,35 @@ public class Snap2snomedConfiguration {
   int maximumImportedCodeSetRows = 200000;
 
   @URL
-  String userRegistrationUrl = "http://snomed.org/account-apply";
+  String userRegistrationUrl = null;
 
-  String registrationText = "To log in you need a SNOMED International account, which you can freely request at ";
+  String registrationText = "To log in you need an appropriate account.";
 
   String mainPageText = "";
 
   @URL
   String userGuideUrl = "http://snomed.org/s2sug";
 
+  @NotBlank
+  String provider = "Australian e-Health Research Centre, CSIRO";
+
   @URL
-  String termsOfServiceUrl = "https://confluence.ihtsdotools.org/pages/viewpage.action?spaceKey=IT&title=Terms+of+Service";
+  String providerUrl = "http://aehrc.csiro.au";
+  
+  @URL
+  String termsOfServiceUrl = "";
 
   @URL
   String privacyPolicyUrl = "https://www.iubenda.com/privacy-policy/46600952";
 
   @NotBlank
   String currentTermsVersion = "1";
+
+  @URL
+  String feedbackUrl = "";
+
+  @NotEmpty
+  String[] targetCodeSystems = { "http://snomed.info/sct", "http://loinc.org" };
 
   @NotNull
   @Valid
@@ -86,4 +108,5 @@ public class Snap2snomedConfiguration {
   @Valid
   SwaggerConfiguration swagger = new SwaggerConfiguration();
 
+  String identityProvider = "";
 }

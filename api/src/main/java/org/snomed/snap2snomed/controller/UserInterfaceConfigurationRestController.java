@@ -49,6 +49,9 @@ public class UserInterfaceConfigurationRestController {
   @Value("${sentry.dialog:false}")
   boolean sentryDialog;
 
+  @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}")
+  String issuerUri;
+
   @Operation(description = "Returns configuration information for front end applications connecting to the server.")
   @GetMapping("/config")
   public @Valid UserInterfaceConfigurationDetails getConfiguration() {
@@ -57,8 +60,11 @@ public class UserInterfaceConfigurationRestController {
     UserInterfaceConfigurationDetailsBuilder builder = UserInterfaceConfigurationDetails.builder()
         .appName(config.getApplicationInstanceName())
         .useCognito(config.getSecurity().getUseCognito())
+        .appSummary(config.getApplicationInstanceSummary())
+        .logoUrl(config.getLogo())
+        .bannerLogoUrl(config.getBannerLogo())
         .authClientID(security.getClientId())
-        .authDomainUrl(security.getAuthDomainUrl())
+        .issuerUri(issuerUri)
         .authLoginGrantType(security.getAuthLoginGrantType())
         .authLoginResponseType(security.getAuthLoginResponseType())
         .authLoginScope(security.getAuthLoginScope())
@@ -73,10 +79,15 @@ public class UserInterfaceConfigurationRestController {
         .userGuideUrl(config.getUserGuideUrl())
         .termsOfServiceUrl(config.getTermsOfServiceUrl())
         .privacyPolicyUrl(config.getPrivacyPolicyUrl())
+        .providerUrl(config.getProviderUrl())
+        .provider(config.getProvider())
         .userRegistrationUrl(config.getUserRegistrationUrl())
         .registrationText(config.getRegistrationText())
         .mainPageText(config.getMainPageText())
-        .currentTermsVersion(config.getCurrentTermsVersion());
+        .feedbackUrl(config.getFeedbackUrl())
+        .currentTermsVersion(config.getCurrentTermsVersion())
+        .targetCodeSystems(config.getTargetCodeSystems())
+        .identityProvider(config.getIdentityProvider());
 
     version.getShortGitCommit().ifPresent(builder::sentryRelease);
 

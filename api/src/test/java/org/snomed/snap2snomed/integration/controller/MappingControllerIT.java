@@ -25,9 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.snomed.snap2snomed.service.FhirService.isValidSctId;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.restassured.response.ValidatableResponse;
-import io.restassured.specification.RequestSpecification;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -38,8 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.ihtsdo.snomed.util.rf2.schema.RF2SchemaConstants;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,16 +53,24 @@ import org.snomed.snap2snomed.model.enumeration.MappingRelationship;
 import org.snomed.snap2snomed.model.enumeration.TaskType;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.restassured.response.ValidatableResponse;
+import io.restassured.specification.RequestSpecification;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+
 @TestInstance(Lifecycle.PER_CLASS)
 @Slf4j
 public class MappingControllerIT extends IntegrationTestBase {
 
+  public static final String TARGET_OUT_OF_SCOPE_TAG = "target-out-of-scope";
   @Autowired
   ObjectMapper objectMapper;
 
   private long taskId, task2Id;
 
-  private String user = "another-test-user";
+  private final String user = "another-test-user";
 
   private long projectId, mapId;
   private long codesetId;
@@ -87,7 +91,7 @@ public class MappingControllerIT extends IntegrationTestBase {
   @BeforeEach
   protected void beforeEachTest() throws IOException {
     mapVersion = "Testing Map Version " + (version++);
-    mapId = restClient.createMap(mapVersion, "http://snomed.info/sct/32506021000036107/version/20210531",
+    mapId = restClient.createMap(mapVersion, "http://snomed.info/sct", "http://snomed.info/sct/32506021000036107/version/20210531",
         "http://map.test.toscope", projectId, codesetId);
 
     taskId = restClient.createTask(DEFAULT_TEST_USER_SUBJECT, TaskType.AUTHOR, mapId, DEFAULT_TEST_USER_SUBJECT, "*",
@@ -140,7 +144,7 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void failNoMapAndStatusChangeAllRows() throws Exception {
-    MappingDto nomapDto = MappingDto.builder().noMap(true).status(MapStatus.UNMAPPED).build();
+    final MappingDto nomapDto = MappingDto.builder().noMap(true).status(MapStatus.UNMAPPED).build();
     expectFail("/updateMapping/map/" + mapId, nomapDto, 400,
         "Invalid combination of changes. Clear/set 'no map' and clearing targets must be done independently of any other changes");
     expectFail("/updateMapping/task/" + taskId, nomapDto, 400,
@@ -150,14 +154,14 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void failNoMapAndStatusChangeSelectedRows() throws Exception {
-    List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
-    MappingDto nomapDto = MappingDto.builder().noMap(true).status(MapStatus.UNMAPPED).build();
-    List<MapView> mapViews = getMapViews();
+    final List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
+    final MappingDto nomapDto = MappingDto.builder().noMap(true).status(MapStatus.UNMAPPED).build();
+    final List<MapView> mapViews = getMapViews();
     mappingDetails.add(
         MappingDetails.builder().rowId(mapViews.get(0).getRowId()).taskId(taskId).mappingUpdate(nomapDto).build());
     mappingDetails.add(
         MappingDetails.builder().rowId(mapViews.get(1).getRowId()).taskId(taskId).mappingUpdate(nomapDto).build());
-    MappingUpdateDto mappingUpdate = new MappingUpdateDto();
+    final MappingUpdateDto mappingUpdate = new MappingUpdateDto();
     mappingUpdate.setMappingDetails(mappingDetails);
     expectFail("/updateMapping", mappingUpdate, 400,
         "Invalid combination of changes. Clear/set 'no map' and clearing targets must be done independently of any other changes");
@@ -166,7 +170,7 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void shouldBulkNoMapAllRows() throws Exception {
-    MappingDto nomapDto = MappingDto.builder().noMap(true).build();
+    final MappingDto nomapDto = MappingDto.builder().noMap(true).build();
     checkRowCounts(DEFAULT_TEST_USER_SUBJECT, "/updateMapping/map/" + mapId, nomapDto, 35, 34);
     checkRowCounts(DEFAULT_TEST_USER_SUBJECT, "/updateMapping/task/" + taskId, nomapDto, 17, 16);
   }
@@ -174,12 +178,12 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void shouldBulkNoMapSelectedRows() throws Exception {
-    List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
-    MappingDto nomapDto = MappingDto.builder().noMap(true).build();
-    List<MapView> mapViews = getMapViews();
+    final List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
+    final MappingDto nomapDto = MappingDto.builder().noMap(true).build();
+    final List<MapView> mapViews = getMapViews();
     mappingDetails.add(MappingDetails.builder().rowId(mapViews.get(0).getRowId()).taskId(taskId).mappingUpdate(nomapDto).build());
     mappingDetails.add(MappingDetails.builder().rowId(mapViews.get(11).getRowId()).taskId(taskId).mappingUpdate(nomapDto).build());
-    MappingUpdateDto mappingUpdate = new MappingUpdateDto();
+    final MappingUpdateDto mappingUpdate = new MappingUpdateDto();
     mappingUpdate.setMappingDetails(mappingDetails);
     checkRowCounts(DEFAULT_TEST_USER_SUBJECT, "/updateMapping", mappingUpdate, 2, 1);
   }
@@ -199,22 +203,22 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void shouldBulkChangeStatusSelected() throws Exception {
-    MappingDto nomapDto = MappingDto.builder().status(MapStatus.DRAFT).build();
-    List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
+    final MappingDto nomapDto = MappingDto.builder().status(MapStatus.DRAFT).build();
+    final List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
     mappingDetails.add(
         MappingDetails.builder().rowId(restClient.getMapRowId(mapId, "map row code 2.")).taskId(taskId).mappingUpdate(nomapDto).build());
     mappingDetails.add(
         MappingDetails.builder().rowId(restClient.getMapRowId(mapId, "map row code 4.")).taskId(taskId).mappingUpdate(nomapDto).build());
-    MappingUpdateDto mappingUpdate = new MappingUpdateDto();
+    final MappingUpdateDto mappingUpdate = new MappingUpdateDto();
     mappingUpdate.setMappingDetails(mappingDetails);
     checkRowCounts(DEFAULT_TEST_USER_SUBJECT, "/updateMapping", mappingUpdate, 2, 1);
   }
 
   @Test
   public void shouldBulkChangeStatusSelection() throws Exception {
-    MappingDto nomapDto = MappingDto.builder().status(MapStatus.DRAFT).build();
-    List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
-    List<MappedRowDetailsDto> selection = new ArrayList<MappedRowDetailsDto>();
+    final MappingDto nomapDto = MappingDto.builder().status(MapStatus.DRAFT).build();
+    final List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
+    final List<MappedRowDetailsDto> selection = new ArrayList<MappedRowDetailsDto>();
     selection.add(MappedRowDetailsDto.builder()
       .mapRowId(restClient.getMapRowId(mapId, "map row code 4."))
       .mapRowTargetId(restClient.getMapRowTargetId(mapId, "broader"))
@@ -229,43 +233,43 @@ public class MappingControllerIT extends IntegrationTestBase {
       .build());
     mappingDetails.add(
         MappingDetails.builder().selection(selection).mappingUpdate(nomapDto).build());
-    MappingUpdateDto mappingUpdate = new MappingUpdateDto();
+    final MappingUpdateDto mappingUpdate = new MappingUpdateDto();
     mappingUpdate.setMappingDetails(mappingDetails);
     checkRowCounts(DEFAULT_TEST_USER_SUBJECT, "/updateMappingForSelected", mappingUpdate, 3, 3);
   }
 
   @Test
   public void shouldClearTargetsForMap() throws Exception {
-    MappingDto nomapDto = MappingDto.builder().clearTarget(true).build();
+    final MappingDto nomapDto = MappingDto.builder().clearTarget(true).build();
     checkRowCounts(DEFAULT_TEST_USER_SUBJECT, "/updateMapping/map/" + mapId, nomapDto, 35, 9);
   }
 
 
   @Test
   public void shouldClearTargetsForTask() throws Exception {
-    MappingDto nomapDto = MappingDto.builder().clearTarget(true).build();
+    final MappingDto nomapDto = MappingDto.builder().clearTarget(true).build();
     checkRowCounts(DEFAULT_TEST_USER_SUBJECT, "/updateMapping/task/" + taskId, nomapDto, 18, 6);
   }
 
 
   @Test
   public void shouldClearTargetsSelected() throws Exception {
-    List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
-    List<MapView> mapViews = getMapViews();
+    final List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
+    final List<MapView> mapViews = getMapViews();
     mapViews.stream()
         .filter(mapView -> mapView.getTargetId() != null)
         .collect(Collectors.toList())
         .forEach(mapView -> {
-          MappingDto nomapDto = MappingDto.builder().clearTarget(true).targetId(mapView.getTargetId()).build();
+          final MappingDto nomapDto = MappingDto.builder().clearTarget(true).targetId(mapView.getTargetId()).build();
           mappingDetails.add(MappingDetails.builder().rowId(mapView.getRowId()).mappingUpdate(nomapDto).build());
         });
-    MappingUpdateDto mappingUpdate = new MappingUpdateDto();
+    final MappingUpdateDto mappingUpdate = new MappingUpdateDto();
     mappingUpdate.setMappingDetails(mappingDetails);
     checkRowCounts(DEFAULT_TEST_USER_SUBJECT, "/updateMapping", mappingUpdate, 10, 9);
   }
 
   private List<MapView> getMapViews() {
-    List<MapView> mapViews = restClient.givenDefaultUser()
+    final List<MapView> mapViews = restClient.givenDefaultUser()
         .queryParam("sort", "sourceIndex")
         .queryParam("size", 100)
         .get("/mapView/" + mapId).then().statusCode(200)
@@ -276,7 +280,7 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void shouldChangeRelationshipForMap() throws Exception {
-    MappingDto nomapDto = MappingDto.builder().relationship(MappingRelationship.TARGET_NARROWER).build();
+    final MappingDto nomapDto = MappingDto.builder().relationship(MappingRelationship.TARGET_NARROWER).build();
     checkRowCounts(DEFAULT_TEST_USER_SUBJECT, "/updateMapping/map/" + mapId, nomapDto, 35, 9);
     checkRelationships(
         getMapViews().stream().filter(mv -> mv.getTargetId() != null && mv.getSourceIndex() != 11)
@@ -287,24 +291,24 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void shouldChangeRelationshipForTask() throws Exception {
-    MappingDto nomapDto = MappingDto.builder().relationship(MappingRelationship.TARGET_NARROWER).build();
+    final MappingDto nomapDto = MappingDto.builder().relationship(MappingRelationship.TARGET_NARROWER).build();
     checkRowCounts(DEFAULT_TEST_USER_SUBJECT, "/updateMapping/task/" + taskId, nomapDto, 18, 6);
   }
 
 
   @Test
   public void shouldChangeRelationshipForSelected() throws Exception {
-    List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
-    List<MapView> mapViews = getMapViews();
+    final List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
+    final List<MapView> mapViews = getMapViews();
     mapViews.stream()
         .filter(mapView -> mapView.getTargetId() != null)
         .collect(Collectors.toList())
         .forEach(mapView -> {
-          MappingDto nomapDto = MappingDto.builder().relationship(MappingRelationship.TARGET_NARROWER).targetId(mapView.getTargetId())
+          final MappingDto nomapDto = MappingDto.builder().relationship(MappingRelationship.TARGET_NARROWER).targetId(mapView.getTargetId())
               .build();
           mappingDetails.add(MappingDetails.builder().rowId(mapView.getRowId()).mappingUpdate(nomapDto).build());
         });
-    MappingUpdateDto mappingUpdate = new MappingUpdateDto();
+    final MappingUpdateDto mappingUpdate = new MappingUpdateDto();
     mappingUpdate.setMappingDetails(mappingDetails);
     checkRowCounts(DEFAULT_TEST_USER_SUBJECT, "/updateMapping", mappingUpdate, 10, 9);
   }
@@ -312,14 +316,14 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void failChangeWithNoChangesSpecified() throws Exception {
-    String expectedDetail = "No changes were specified";
-    MappingUpdateDto mappingUpdate = new MappingUpdateDto();
+    final String expectedDetail = "No changes were specified";
+    final MappingUpdateDto mappingUpdate = new MappingUpdateDto();
     expectFail("/updateMapping", mappingUpdate, 400, expectedDetail);
-    List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
+    final List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
     mappingUpdate.setMappingDetails(mappingDetails);
     expectFail("/updateMapping", mappingUpdate, 400, expectedDetail);
 
-    MappingDto mappingDto = MappingDto.builder().build();
+    final MappingDto mappingDto = MappingDto.builder().build();
     expectFail("/updateMapping/map/" + mapId, mappingDto, 400, expectedDetail);
     expectFail("/updateMapping/task/" + taskId, mappingDto, 400, expectedDetail);
   }
@@ -327,12 +331,12 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void failDifferentTaskAcrossBulkChange() throws Exception {
-    MappingDto nomapDto = MappingDto.builder().status(MapStatus.REJECTED).build();
-    List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
-    List<MapView> mapViews = getMapViews();
+    final MappingDto nomapDto = MappingDto.builder().status(MapStatus.REJECTED).build();
+    final List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
+    final List<MapView> mapViews = getMapViews();
     mappingDetails.add(MappingDetails.builder().rowId(mapViews.get(1).getRowId()).taskId(taskId).mappingUpdate(nomapDto).build());
     mappingDetails.add(MappingDetails.builder().rowId(mapViews.get(3).getRowId()).taskId(task2Id).mappingUpdate(nomapDto).build());
-    MappingUpdateDto mappingUpdate = new MappingUpdateDto();
+    final MappingUpdateDto mappingUpdate = new MappingUpdateDto();
     mappingUpdate.setMappingDetails(mappingDetails);
     expectFail("/updateMapping", mappingUpdate, 400,
         "Specified task identifiers for bulk changes must be the same value");
@@ -341,12 +345,12 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void failDifferentTaskForDifferentUser() throws Exception {
-    MappingDto nomapDto = MappingDto.builder().status(MapStatus.REJECTED).build();
-    List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
-    List<MapView> mapViews = getMapViews();
+    final MappingDto nomapDto = MappingDto.builder().status(MapStatus.REJECTED).build();
+    final List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
+    final List<MapView> mapViews = getMapViews();
     mappingDetails.add(MappingDetails.builder().rowId(mapViews.get(22).getRowId()).taskId(task2Id).mappingUpdate(nomapDto).build());
     mappingDetails.add(MappingDetails.builder().rowId(mapViews.get(23).getRowId()).taskId(task2Id).mappingUpdate(nomapDto).build());
-    MappingUpdateDto mappingUpdate = new MappingUpdateDto();
+    final MappingUpdateDto mappingUpdate = new MappingUpdateDto();
     mappingUpdate.setMappingDetails(mappingDetails);
     expectFail("/updateMapping", mappingUpdate, 403, "User is not assigned to task " + task2Id);
   }
@@ -354,11 +358,11 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void failTaskDoesNotMatchRow() throws Exception {
-    MappingDto nomapDto = MappingDto.builder().status(MapStatus.REJECTED).build();
-    List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
-    List<MapView> mapViews = getMapViews();
+    final MappingDto nomapDto = MappingDto.builder().status(MapStatus.REJECTED).build();
+    final List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
+    final List<MapView> mapViews = getMapViews();
     mappingDetails.add(MappingDetails.builder().rowId(mapViews.get(22).getRowId()).taskId(taskId).mappingUpdate(nomapDto).build());
-    MappingUpdateDto mappingUpdate = new MappingUpdateDto();
+    final MappingUpdateDto mappingUpdate = new MappingUpdateDto();
     mappingUpdate.setMappingDetails(mappingDetails);
     expectFail("/updateMapping", mappingUpdate, 400,
         "Specified task " + taskId + " is not associated with map row " + mapViews.get(22).getRowId());
@@ -367,12 +371,12 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void failTargetAndRowDoNotMatch() throws Exception {
-    List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
-    List<MapView> mapViews = getMapViews();
-    MappingDto nomapDto = MappingDto.builder().relationship(MappingRelationship.TARGET_NARROWER).targetId(mapViews.get(5).getTargetId())
+    final List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
+    final List<MapView> mapViews = getMapViews();
+    final MappingDto nomapDto = MappingDto.builder().relationship(MappingRelationship.TARGET_NARROWER).targetId(mapViews.get(5).getTargetId())
         .build();
     mappingDetails.add(MappingDetails.builder().rowId(mapViews.get(1).getRowId()).taskId(taskId).mappingUpdate(nomapDto).build());
-    MappingUpdateDto mappingUpdate = new MappingUpdateDto();
+    final MappingUpdateDto mappingUpdate = new MappingUpdateDto();
     mappingUpdate.setMappingDetails(mappingDetails);
     expectFail("/updateMapping", mappingUpdate, 400,
         "Map row target " + mapViews.get(5).getTargetId() + " does not belong to map row " + mapViews.get(1).getRowId());
@@ -381,16 +385,16 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void failChangeNoTaskNotOwner() throws Exception {
-    List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
-    List<MapView> mapViews = getMapViews();
+    final List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
+    final List<MapView> mapViews = getMapViews();
     mapViews.stream()
         .filter(mapView -> mapView.getTargetId() != null)
         .collect(Collectors.toList())
         .forEach(mapView -> {
-          MappingDto nomapDto = MappingDto.builder().clearTarget(true).targetId(mapView.getTargetId()).build();
+          final MappingDto nomapDto = MappingDto.builder().clearTarget(true).targetId(mapView.getTargetId()).build();
           mappingDetails.add(MappingDetails.builder().rowId(mapView.getRowId()).mappingUpdate(nomapDto).build());
         });
-    MappingUpdateDto mappingUpdate = new MappingUpdateDto();
+    final MappingUpdateDto mappingUpdate = new MappingUpdateDto();
     mappingUpdate.setMappingDetails(mappingDetails);
     expectFail(user, "/updateMapping", mappingUpdate, 403, "User is not authorised to update the mapping",
         "Only an owner can perform bulk updates outside of the context of a task");
@@ -399,12 +403,12 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void failChangeStatusToUnmapped() throws Exception {
-    String expectedDetail = "Cannot set status to UNMAPPED, UNMAPPED is a system controlled state when a row has no targets and no map is not set";
-    MappingDto mappingDto = MappingDto.builder().status(MapStatus.UNMAPPED).build();
+    final String expectedDetail = "Cannot set status to UNMAPPED, UNMAPPED is a system controlled state when a row has no targets and no map is not set";
+    final MappingDto mappingDto = MappingDto.builder().status(MapStatus.UNMAPPED).build();
 
-    MappingUpdateDto mappingUpdate = new MappingUpdateDto();
-    List<MapView> mapViews = getMapViews();
-    List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
+    final MappingUpdateDto mappingUpdate = new MappingUpdateDto();
+    final List<MapView> mapViews = getMapViews();
+    final List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
     mappingDetails.add(MappingDetails.builder().rowId(mapViews.get(1).getRowId()).taskId(taskId)
         .mappingUpdate(mappingDto).build());
     mappingUpdate.setMappingDetails(mappingDetails);
@@ -419,8 +423,8 @@ public class MappingControllerIT extends IntegrationTestBase {
   public void failReviewTaskUpdateOtherThanStatus() throws Exception {
     MappingDto mappingDto = MappingDto.builder().noMap(true).build();
 
-    MappingUpdateDto mappingUpdate = new MappingUpdateDto();
-    List<MapView> mapViews = getMapViews();
+    final MappingUpdateDto mappingUpdate = new MappingUpdateDto();
+    final List<MapView> mapViews = getMapViews();
     List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
     mappingDetails.add(MappingDetails.builder().rowId(mapViews.get(22).getRowId()).taskId(task2Id)
         .mappingUpdate(mappingDto).build());
@@ -448,9 +452,9 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void failNoMapAndStatusChangeSelectedRowsViaSelection() throws Exception {
-    List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
-    MappingDto nomapDto = MappingDto.builder().noMap(true).status(MapStatus.UNMAPPED).build();
-    List<MapView> mapViews = getMapViews();
+    final List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
+    final MappingDto nomapDto = MappingDto.builder().noMap(true).status(MapStatus.UNMAPPED).build();
+    final List<MapView> mapViews = getMapViews();
     mappingDetails.add(MappingDetails.builder().selection(Arrays.asList(
             MappedRowDetailsDto.builder().mapRowId(mapViews.get(0).getRowId()).build(),
             MappedRowDetailsDto.builder().mapRowId(mapViews.get(1).getRowId()).build()
@@ -458,7 +462,7 @@ public class MappingControllerIT extends IntegrationTestBase {
         .taskId(taskId)
         .mappingUpdate(nomapDto)
         .build());
-    MappingUpdateDto mappingUpdate = new MappingUpdateDto();
+    final MappingUpdateDto mappingUpdate = new MappingUpdateDto();
     mappingUpdate.setMappingDetails(mappingDetails);
     expectFail("/updateMappingForSelected", mappingUpdate, 400,
         "Invalid combination of changes. Clear/set 'no map' and clearing targets must be done independently of any other changes");
@@ -467,9 +471,9 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void shouldBulkNoMapSelectedRowsViaSelection() throws Exception {
-    List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
-    MappingDto nomapDto = MappingDto.builder().noMap(true).build();
-    List<MapView> mapViews = getMapViews();
+    final List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
+    final MappingDto nomapDto = MappingDto.builder().noMap(true).build();
+    final List<MapView> mapViews = getMapViews();
     mappingDetails.add(MappingDetails.builder().selection(Arrays.asList(
             MappedRowDetailsDto.builder().mapRowId(mapViews.get(0).getRowId()).build(),
             MappedRowDetailsDto.builder().mapRowId(mapViews.get(11).getRowId()).build()
@@ -477,7 +481,7 @@ public class MappingControllerIT extends IntegrationTestBase {
         .taskId(taskId)
         .mappingUpdate(nomapDto)
         .build());
-    MappingUpdateDto mappingUpdate = new MappingUpdateDto();
+    final MappingUpdateDto mappingUpdate = new MappingUpdateDto();
     mappingUpdate.setMappingDetails(mappingDetails);
     checkRowCounts(DEFAULT_TEST_USER_SUBJECT, "/updateMappingForSelected", mappingUpdate, 2, 1);
   }
@@ -485,9 +489,9 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void shouldBulkChangeStatusSelectedViaSelection() throws Exception {
-    MappingDto nomapDto = MappingDto.builder().status(MapStatus.DRAFT).build();
-    List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
-    List<MapView> mapViews = getMapViews();
+    final MappingDto nomapDto = MappingDto.builder().status(MapStatus.DRAFT).build();
+    final List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
+    final List<MapView> mapViews = getMapViews();
     mappingDetails.add(MappingDetails.builder().selection(Arrays.asList(
             MappedRowDetailsDto.builder().mapRowId(mapViews.get(1).getRowId()).build(),
             MappedRowDetailsDto.builder().mapRowId(mapViews.get(3).getRowId()).build()
@@ -495,7 +499,7 @@ public class MappingControllerIT extends IntegrationTestBase {
         .taskId(taskId)
         .mappingUpdate(nomapDto)
         .build());
-    MappingUpdateDto mappingUpdate = new MappingUpdateDto();
+    final MappingUpdateDto mappingUpdate = new MappingUpdateDto();
     mappingUpdate.setMappingDetails(mappingDetails);
     checkRowCounts(DEFAULT_TEST_USER_SUBJECT, "/updateMappingForSelected", mappingUpdate, 2, 1);
   }
@@ -503,10 +507,10 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void shouldClearTargetsSelectedViaSelection() throws Exception {
-    List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
-    List<MapView> mapViews = getMapViews();
-    List<MappedRowDetailsDto> selections = new ArrayList<MappedRowDetailsDto>();
-    MappingDto nomapDto = MappingDto.builder().clearTarget(true).build();
+    final List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
+    final List<MapView> mapViews = getMapViews();
+    final List<MappedRowDetailsDto> selections = new ArrayList<MappedRowDetailsDto>();
+    final MappingDto nomapDto = MappingDto.builder().clearTarget(true).build();
     mapViews.stream()
         .filter(mapView -> mapView.getTargetId() != null)
         .collect(Collectors.toList())
@@ -517,7 +521,7 @@ public class MappingControllerIT extends IntegrationTestBase {
         .selection(selections)
         .mappingUpdate(nomapDto)
         .build());
-    MappingUpdateDto mappingUpdate = new MappingUpdateDto();
+    final MappingUpdateDto mappingUpdate = new MappingUpdateDto();
     mappingUpdate.setMappingDetails(mappingDetails);
     checkRowCounts(DEFAULT_TEST_USER_SUBJECT, "/updateMappingForSelected", mappingUpdate, 10, 9);
   }
@@ -525,10 +529,10 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void shouldChangeRelationshipForSelectedViaSelection() throws Exception {
-    List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
-    List<MapView> mapViews = getMapViews();
-    List<MappedRowDetailsDto> selections = new ArrayList<MappedRowDetailsDto>();
-    MappingDto nomapDto = MappingDto.builder().relationship(MappingRelationship.TARGET_NARROWER).build();
+    final List<MappingDetails> mappingDetails = new ArrayList<MappingDetails>();
+    final List<MapView> mapViews = getMapViews();
+    final List<MappedRowDetailsDto> selections = new ArrayList<MappedRowDetailsDto>();
+    final MappingDto nomapDto = MappingDto.builder().relationship(MappingRelationship.TARGET_NARROWER).build();
     mapViews.stream()
         .filter(mapView -> mapView.getTargetId() != null)
         .collect(Collectors.toList())
@@ -539,7 +543,7 @@ public class MappingControllerIT extends IntegrationTestBase {
         .selection(selections)
         .mappingUpdate(nomapDto)
         .build());
-    MappingUpdateDto mappingUpdate = new MappingUpdateDto();
+    final MappingUpdateDto mappingUpdate = new MappingUpdateDto();
     mappingUpdate.setMappingDetails(mappingDetails);
     checkRowCounts(DEFAULT_TEST_USER_SUBJECT, "/updateMappingForSelected", mappingUpdate, 10, 9);
   }
@@ -549,18 +553,19 @@ public class MappingControllerIT extends IntegrationTestBase {
 
     restClient.validateMapTargets(mapId);
 
-    List<MapViewDto> originalMap = getMapViewDtoList(mapId);
+    final List<MapViewDto> originalMap = getMapViewDtoList(mapId);
 
-    Set<Integer> codesToOmit = Set.of(10, 15, 16, 17);
-    Long newCodesetId = restClient.createImportedCodeSet("map row code", "new display", "test code set", "1.2.3", 40, codesToOmit);
+    final Set<Integer> codesToOmit = Set.of(10, 15, 16, 17);
+    final Long newCodesetId = restClient.createImportedCodeSet("map row code", "new display", "test code set", "1.2.3", 40, codesToOmit);
 
-    java.util.Map<String, Object> map = new HashMap<>();
+    final java.util.Map<String, Object> map = new HashMap<>();
     map.put("mapVersion", "new-map-version-new-source");
+    map.put("toSystem", "http://snomed.info/sct");
     map.put("toVersion", "http://snomed.info/sct/32506021000036107/version/20210231");
     map.put("toScope", "*");
     map.put("sourceId", newCodesetId);
 
-    Long newMapId = restClient.givenDefaultUser().body(objectMapper.writeValueAsString(map))
+    final Long newMapId = restClient.givenDefaultUser().body(objectMapper.writeValueAsString(map))
         .post("/map/" + mapId + "/newMappingVersion")
         .then().statusCode(200).extract().body().as(Long.class);
 
@@ -571,26 +576,26 @@ public class MappingControllerIT extends IntegrationTestBase {
         .body("toVersion", is("http://snomed.info/sct/32506021000036107/version/20210231"))
         .body("toScope", is("*"));
 
-    List<MapViewDto> originalMap2 = getMapViewDtoList(mapId);
+    final List<MapViewDto> originalMap2 = getMapViewDtoList(mapId);
 
     assertEquals(Set.copyOf(originalMap), Set.copyOf(originalMap2), "Original map is unchanged by being cloned");
 
-    List<MapViewDto> newMap = getMapViewDtoList(newMapId);
+    final List<MapViewDto> newMap = getMapViewDtoList(newMapId);
 
-    Map<String, List<MapViewDto>> originalMapViewCache = cacheMapViewBySourceCode(originalMap);
-    Map<String, List<MapViewDto>> newMapViewCache = cacheMapViewBySourceCode(newMap);
+    final Map<String, List<MapViewDto>> originalMapViewCache = cacheMapViewBySourceCode(originalMap);
+    final Map<String, List<MapViewDto>> newMapViewCache = cacheMapViewBySourceCode(newMap);
 
     for (int i = 1; i <= 40; i++) {
-      String code = "map row code " + i + ".";
+      final String code = "map row code " + i + ".";
       if (codesToOmit.contains(i)) {
         assertFalse(newMapViewCache.containsKey(code));
       } else if (i > 34) { // original code set size
         assertTrue(newMapViewCache.containsKey(code));
         assertFalse(originalMapViewCache.containsKey(code));
 
-        List<MapViewDto> newMapViews = newMapViewCache.get(code);
+        final List<MapViewDto> newMapViews = newMapViewCache.get(code);
 
-        for (MapViewDto dto : newMapViews) {
+        for (final MapViewDto dto : newMapViews) {
           assertNotNull(dto.rowId);
           assertNotNull(dto.sourceIndex);
           assertEquals(dto.sourceCode, code);
@@ -606,11 +611,11 @@ public class MappingControllerIT extends IntegrationTestBase {
           assertNull(dto.assignedReviewer);
           assertNull(dto.lastAuthor);
           assertNull(dto.lastReviewer);
-          assertFalse(dto.flagged);
+          assertFalse(dto.containsTargetTag(TARGET_OUT_OF_SCOPE_TAG));
         }
       } else {
-        List<MapViewDto> originalMapViews = originalMapViewCache.get(code);
-        List<MapViewDto> newMapViews = newMapViewCache.get(code);
+        final List<MapViewDto> originalMapViews = originalMapViewCache.get(code);
+        final List<MapViewDto> newMapViews = newMapViewCache.get(code);
 
         for (int j = 0; j < originalMapViews.size(); j++) {
           compareClonedMapRow(i, "map row display", "new display", originalMapViews.get(j), newMapViews.get(j), false);
@@ -620,15 +625,15 @@ public class MappingControllerIT extends IntegrationTestBase {
   }
 
   private List<MapViewDto> getMapViewDtoList(Long mapId) {
-    RequestSpecification request = restClient.givenDefaultUser()
+    final RequestSpecification request = restClient.givenDefaultUser()
         .queryParam("size", 100);
     return request.get("/mapView/" + mapId)
         .then().statusCode(200).extract().body().jsonPath().getList("content", MapViewDto.class);
   }
 
   private Map<String, List<MapViewDto>> cacheMapViewBySourceCode(List<MapViewDto> dtos) {
-    java.util.Map<String, List<MapViewDto>> map = new HashMap<>();
-    for (MapViewDto dto : dtos) {
+    final java.util.Map<String, List<MapViewDto>> map = new HashMap<>();
+    for (final MapViewDto dto : dtos) {
       List<MapViewDto> list = map.get(dto.getSourceCode());
       if (list == null) {
         list = new ArrayList<>();
@@ -655,15 +660,16 @@ public class MappingControllerIT extends IntegrationTestBase {
 
     restClient.validateMapTargets(mapId);
 
-    List<MapViewDto> originalMap = getMapViewDtoList(mapId);
+    final List<MapViewDto> originalMap = getMapViewDtoList(mapId);
 
-    java.util.Map<String, Object> map = new HashMap<>();
+    final java.util.Map<String, Object> map = new HashMap<>();
     map.put("mapVersion", "new-map-version-same-source");
+    map.put("toSystem", "http://snomed.info/sct");
     map.put("toVersion", "http://snomed.info/sct/32506021000036107/version/20210731");
     map.put("toScope", "*");
     map.put("sourceId", codesetId);
 
-    Long newMapId = restClient.givenDefaultUser().body(objectMapper.writeValueAsString(map))
+    final Long newMapId = restClient.givenDefaultUser().body(objectMapper.writeValueAsString(map))
         .post("/map/" + mapId + "/newMappingVersion")
         .then().statusCode(200).extract().body().as(Long.class);
 
@@ -674,18 +680,18 @@ public class MappingControllerIT extends IntegrationTestBase {
         .body("toVersion", is("http://snomed.info/sct/32506021000036107/version/20210731"))
         .body("toScope", is("*"));
 
-    List<MapViewDto> originalMap2 = getMapViewDtoList(mapId);
+    final List<MapViewDto> originalMap2 = getMapViewDtoList(mapId);
 
     assertEquals(Set.copyOf(originalMap), Set.copyOf(originalMap2), "Original map is unchanged by being cloned");
 
-    List<MapViewDto> newMap = getMapViewDtoList(newMapId);
-    Map<String, List<MapViewDto>> originalMapViewCache = cacheMapViewBySourceCode(originalMap);
-    Map<String, List<MapViewDto>> newMapViewCache = cacheMapViewBySourceCode(newMap);
+    final List<MapViewDto> newMap = getMapViewDtoList(newMapId);
+    final Map<String, List<MapViewDto>> originalMapViewCache = cacheMapViewBySourceCode(originalMap);
+    final Map<String, List<MapViewDto>> newMapViewCache = cacheMapViewBySourceCode(newMap);
 
     for (int i = 1; i <= 34; i++) {
-      String code = "map row code " + i + ".";
-      List<MapViewDto> originalMapViews = originalMapViewCache.get(code);
-      List<MapViewDto> newMapViews = newMapViewCache.get(code);
+      final String code = "map row code " + i + ".";
+      final List<MapViewDto> originalMapViews = originalMapViewCache.get(code);
+      final List<MapViewDto> newMapViews = newMapViewCache.get(code);
 
       for (int j = 0; j < originalMapViews.size(); j++) {
         compareClonedMapRow(i, "map row display", "map row display", originalMapViews.get(j),
@@ -699,10 +705,10 @@ public class MappingControllerIT extends IntegrationTestBase {
     boolean originalHasAssignedAuthor = false;
     boolean originalHasAssignedReviewer = false;
     for (int i = 0; i < originalMap.size(); i++) {
-      MapViewDto originalRow = originalMap.get(i);
-      MapViewDto newRow = newMap.get(i);
+      final MapViewDto originalRow = originalMap.get(i);
+      final MapViewDto newRow = newMap.get(i);
 
-      if (originalRow.flagged) {
+      if (originalRow.containsTargetTag(TARGET_OUT_OF_SCOPE_TAG)) {
         originalHasFlagged = true;
       }
 
@@ -754,15 +760,17 @@ public class MappingControllerIT extends IntegrationTestBase {
     assertNull(newRow.assignedReviewer, "Should ne no assigned reviewer - row " + i);
     assertEquals(originalRow.lastAuthor, newRow.lastAuthor, "Last author be equal - row " + i);
     assertEquals(originalRow.lastReviewer, newRow.lastReviewer, "Last reviewer be equal - row " + i);
-    boolean expectToBeFlagged = newRow.targetCode != null && !newRow.targetCode.trim().isEmpty() &&
+    final boolean expectToBeFlagged = newRow.targetCode != null && !newRow.targetCode.trim().isEmpty() &&
             !isValidSctId(newRow.targetCode, RF2SchemaConstants.PartionIdentifier.CONCEPT);
-    assertEquals(expectToBeFlagged, newRow.flagged, "Flagged should be " + expectToBeFlagged + " - row " + i);
+    assertEquals(expectToBeFlagged, newRow.containsTargetTag(TARGET_OUT_OF_SCOPE_TAG),
+        "Flagged should be " + expectToBeFlagged + " - row " + i);
   }
 
   @Test
   public void failCreateNewMappingVersionNotProjectOwner() throws Exception {
-    java.util.Map<String, Object> map = new HashMap<>();
+    final java.util.Map<String, Object> map = new HashMap<>();
     map.put("mapVersion", mapVersion + "new");
+    map.put("toSystem", "http://snomed.info/sct");
     map.put("toVersion", "http://snomed.info/sct/32506021000036107/version/20210531");
     map.put("toScope", "http://map.test.toscope");
     map.put("sourceId", codesetId);
@@ -774,8 +782,9 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void failCreateNewMappingVersionNoSuchImportedCodeSet() throws Exception {
-    java.util.Map<String, Object> map = new HashMap<>();
+    final java.util.Map<String, Object> map = new HashMap<>();
     map.put("mapVersion", mapVersion);
+    map.put("toSystem", "http://snomed.info/sct");
     map.put("toVersion", "http://snomed.info/sct/32506021000036107/version/20210531");
     map.put("toScope", "http://map.test.toscope");
     map.put("sourceId", 99999);
@@ -788,8 +797,9 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void failCreateNewMappingVersionNoExistingMap() throws Exception {
-    java.util.Map<String, Object> map = new HashMap<>();
+    final java.util.Map<String, Object> map = new HashMap<>();
     map.put("mapVersion", mapVersion);
+    map.put("toSystem", "http://snomed.info/sct");
     map.put("toVersion", "http://snomed.info/sct/32506021000036107/version/20210531");
     map.put("toScope", "http://map.test.toscope");
     map.put("sourceId", codesetId);
@@ -802,8 +812,9 @@ public class MappingControllerIT extends IntegrationTestBase {
 
   @Test
   public void failCreateNewMappingVersionInvalidMap() throws Exception {
-    java.util.Map<String, Object> map = new HashMap<>();
+    final java.util.Map<String, Object> map = new HashMap<>();
     map.put("mapVersion", mapVersion);
+    map.put("toSystem", "http://snomed.info/sct");
     map.put("toVersion", "http://snomed.info/sct/32506021000036107/version/20210531");
     map.put("toScope", "http://map.test.toscope");
     map.put("sourceId", codesetId);
@@ -828,7 +839,7 @@ public class MappingControllerIT extends IntegrationTestBase {
   private void expectFail(String user, String url, Object dto, int statusCode, String title, String detail)
       throws Exception {
 
-    ValidatableResponse response = restClient.givenUser(user)
+    final ValidatableResponse response = restClient.givenUser(user)
         .body(objectMapper.writeValueAsString(dto))
         .post(url)
         .then().statusCode(statusCode);
@@ -888,6 +899,12 @@ public class MappingControllerIT extends IntegrationTestBase {
     private UserDto lastReviewer;
 
     private boolean flagged;
+
+    private Set<String> targetTags;
+
+    public boolean containsTargetTag(String tag) {
+      return targetTags != null && targetTags.contains(tag);
+    }
   }
 
   @Data

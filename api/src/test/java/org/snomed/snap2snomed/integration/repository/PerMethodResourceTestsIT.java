@@ -16,14 +16,14 @@
 
 package org.snomed.snap2snomed.integration.repository;
 
-import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -48,13 +48,13 @@ public class PerMethodResourceTestsIT extends IntegrationTestBase {
   @Test
   public void projectMemberShouldSeeImportedCodeSystem() throws Exception {
 
-    long projectId = restClient.createProject("ProjectDemo", "Demo Project", Set.of(DEFAULT_TEST_USER_SUBJECT, PROJECT_USER), Set.of(), Set.of());
+    final long projectId = restClient.createProject("ProjectDemo", "Demo Project", Set.of(DEFAULT_TEST_USER_SUBJECT, PROJECT_USER), Set.of(), Set.of());
 
     final String codeSetName = "AAA semicolon - defaultuser - projecttest";
 
-    long codesetId = immportCodeSetForUser(DEFAULT_TEST_USER_SUBJECT, codeSetName, "1.0", 0, 2, true, ";", new ClassPathResource("AAA-semi.csv").getFile(), "text/tsv");
+    final long codesetId = immportCodeSetForUser(DEFAULT_TEST_USER_SUBJECT, codeSetName, "1.0", 0, 2, true, ";", new ClassPathResource("AAA-semi.csv").getFile(), "text/tsv");
 
-    restClient.createMap("Testing Map Version", "http://snomed.info/sct/32506021000036107/version/20210531",
+    restClient.createMap("Testing Map Version", "http://snomed.info/sct", "http://snomed.info/sct/32506021000036107/version/20210531",
         "http://map.test.toscope", projectId, codesetId);
 
     restClient.givenUser(PROJECT_USER).get("/importedCodeSets")
@@ -64,7 +64,7 @@ public class PerMethodResourceTestsIT extends IntegrationTestBase {
 
   private long immportCodeSetForUser(String subject, String name, String version, int codeColumnIndex, int displayColumnIndex, boolean hasHeader,
       String delimiter, File file, String fileType) throws Exception {
-    long id = restClient.createImportedCodeSet(subject, name, version, codeColumnIndex, displayColumnIndex, hasHeader, delimiter, file, fileType);
+    final long id = restClient.createImportedCodeSet(subject, name, version, codeColumnIndex, displayColumnIndex, hasHeader, delimiter, file, fileType);
 
     restClient.givenUser(subject).get("/importedCodeSets/search/byIdForOwner?id=" + id)
         .then().statusCode(200)

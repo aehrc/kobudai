@@ -17,6 +17,7 @@
 package org.snomed.snap2snomed.service;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -79,6 +80,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MapViewService {
 
   private static final String ADDITIONAL_COLUMN_NAME = "additionalColumn";
+  private static final String TARGET_OUT_OF_SCOPE_TAG = "target-out-of-scope";
 
   public class MapViewFilter {
 
@@ -94,13 +96,14 @@ public class MapViewService {
     private final List<String> lastAuthorReviewer;
     private final List<String> assignedAuthor;
     private final List<String> assignedReviewer;
+    private final Boolean targetOutOfScope;
     private final Boolean flagged;
     private final List<String> additionalColumns;
 
     public MapViewFilter(List<String> sourceCodes, List<String> sourceDisplays, Boolean noMap, List<String> targetCodes,
         List<String> targetDisplays, List<MappingRelationship> relationshipTypes, List<MapStatus> statuses, List<String> lastAuthor,
         List<String> lastReviewer, List<String> lastAuthorReviewer, List<String> assignedAuthor, List<String> assignedReviewer,
-        Boolean flagged, List<String> additionalColumns) {
+        Boolean targetOutOfScope, Boolean flagged, List<String> additionalColumns) {
       this.sourceCodes = sourceCodes;
       this.sourceDisplays = sourceDisplays;
       this.noMap = noMap;
@@ -113,6 +116,7 @@ public class MapViewService {
       this.lastAuthorReviewer = lastAuthorReviewer;
       this.assignedAuthor = assignedAuthor;
       this.assignedReviewer = assignedReviewer;
+      this.targetOutOfScope = targetOutOfScope;
       this.flagged = flagged;
       this.additionalColumns  = additionalColumns;
     }
@@ -184,6 +188,15 @@ public class MapViewService {
 
         expression = collectAndStatement(expression, collectOrStatement(QMapRow.mapRow.reviewTask.assignee.id.in(assignedReviewer),
             noneMatch));
+      }
+
+      if (targetOutOfScope != null) {
+        if (targetOutOfScope) {
+          expression = collectAndStatement(expression, QMapRowTarget.mapRowTarget.tags.contains(TARGET_OUT_OF_SCOPE_TAG));
+        }
+        else {
+          expression = collectAndStatement(expression, QMapRowTarget.mapRowTarget.tags.contains(TARGET_OUT_OF_SCOPE_TAG).not());
+        }
       }
 
       if (flagged != null) {
@@ -274,6 +287,26 @@ public class MapViewService {
     return "map-" + map.getProject().getTitle() + "_" + map.getMapVersion() + extension;
   }
 
+  public List<AdditionalCodeColumn> getAdditionalColumnsMetadata(Long mapId) {
+    return mapRepository.findSourceByMapId(mapId).get().getAdditionalColumnsMetadata();
+  }
+
+  public String[] getExportHeader(Long mapId) {
+
+    final ArrayList<String> exportHeader = new ArrayList<String>(Arrays.asList("\uFEFF" + "Source code", "Source display"));
+
+    final List<AdditionalCodeColumn> additionalCodeColumnList = this.getAdditionalColumnsMetadata(mapId);
+    if (additionalCodeColumnList != null && additionalCodeColumnList.size() > 0) {
+      for (final AdditionalCodeColumn additionalColumn : additionalCodeColumnList) {
+        exportHeader.add(additionalColumn.getName());
+      }
+    }
+    exportHeader.addAll(Arrays.asList("Target code", "Target display", "Relationship type code", "Relationship type display", "No map flag", "Status"));
+
+    return exportHeader.toArray(new String[0]);
+
+  }
+
   public List<MapView> getAllMapViewForMap(Long mapId) {
     return getQueryForMap(mapId, null, null).orderBy(mapRow.sourceCode.index.asc()).orderBy(mapTarget.id.asc()).fetch();
   }
@@ -359,6 +392,11 @@ public class MapViewService {
             field = Arrays.asList(
                 getUserSortComparison(mapRow.lastAuthor),
                 getUserSortComparison(mapRow.lastReviewer));
+            break;
+          case "targetOutOfScope":
+            field = null;
+            // it does not make sense to sort by this flag so it is not supported
+            log.warn("Unsupported MapView sort field '" + s.getProperty() + "' - ignored");
             break;
           case "flagged":
             field = Arrays.asList(mapTarget.flagged);

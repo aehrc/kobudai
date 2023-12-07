@@ -8,12 +8,15 @@
             <i>{{'MAP.VERSION' | translate}}</i> {{mapping.source.version}}
           </li>
           <li class="one-line-ellipse"><b>{{'MAP.TARGET' | translate}}:</b>&nbsp;
-            <app-source-version [version]="mapping.toVersion"></app-source-version>
+            <app-target-version [system]="mapping.toSystem" [version]="mapping.toVersion"></app-target-version>
           </li>
           <li class="one-line-ellipse"><b>{{'MAP.SCOPE' | translate}}:</b>&nbsp;
             {{mapping.toScope}}
           </li>
         </ul>
+      </div>
+      <div *ngIf="outOfScopeTargetCount > 0" class="col-middle">
+        <span class="out-of-scope-text">{{'MAP.NUM_TARGETS_OUT_OF_SCOPE' | translate}}: {{outOfScopeTargetCount}}</span>
       </div>
       <div class="col-action">
         <mat-form-field>

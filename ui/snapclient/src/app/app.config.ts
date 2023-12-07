@@ -15,7 +15,6 @@
  */
 
 import { InjectionToken } from '@angular/core';
-import { logging } from 'protractor';
 
 /**
  *
@@ -29,8 +28,11 @@ export interface AppConfig {
   useCognito: boolean;
   apiBaseUrl: string;
   appName: string;
+  appSummary: string;
+  logoUrl: string;
+  bannerLogoUrl: string;
   authClientID: string;
-  authDomainUrl: string;
+  issuerUri: string;
   authLoginGrantType: string;
   authLoginResponseType: string;
   authLoginScope: string;
@@ -48,7 +50,12 @@ export interface AppConfig {
   userGuideUrl: string;
   termsOfServiceUrl: string;
   privacyPolicyUrl: string;
+  providerUrl: string;
+  provider: string;
+  feedbackUrl: string;
   currentTermsVersion: string;
+  targetCodeSystems: string[];
+  identityProvider: string;
 }
 
 export let APP_CONFIG = new InjectionToken<AppConfig>('APP_CONFIG');

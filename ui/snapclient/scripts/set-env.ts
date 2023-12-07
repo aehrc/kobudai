@@ -25,9 +25,13 @@ const baseEnvFile = './src/assets/config.json';
 // Load node modules
 const colors = require('colors');
 
+const apiBaseUrl = process.env.API_BASE_URL || 'http://localhost:8080';
+const logoUrl = process.env.LOGO_URL || 'assets/img/logo.png';
+
 // `config.ts` file structure - this should match the Release pipeline variable name
 const envConfigFile = `{
-  "apiBaseUrl": "${process.env.API_BASE_URL}"
+  "apiBaseUrl": "${apiBaseUrl}",
+  "logo": "${logoUrl}"
 }`;
 
 if (process.env.hasOwnProperty('API_BASE_URL')) {

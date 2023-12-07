@@ -16,7 +16,7 @@
 
 import {Inject, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
-import {Observable, throwError} from 'rxjs';
+import {Observable, of, throwError} from 'rxjs';
 import {TokenMsg, UserInfo} from '../_models/user';
 import {Task} from '../_models/task';
 import {IAppState} from '../store/app.state';
@@ -29,9 +29,15 @@ import {ActivatedRouteSnapshot} from '@angular/router';
 import {ServiceUtils} from '../_utils/service_utils';
 import jwt_decode from 'jwt-decode';
 import {selectMappingLoading} from '../store/mapping-feature/mapping.selectors';
-import {map} from "rxjs/operators";
+import {catchError, map, switchMap} from "rxjs/operators";
 import {MapService} from "./map.service";
 
+interface OidcConfig {
+  token_endpoint: string;
+  authorization_endpoint: string;
+  userinfo_endpoint: string;
+  end_session_endpoint?: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -44,11 +50,13 @@ export class AuthService {
               private store: Store<IAppState>) {
   }
 
-  private baseUrl = this.config.authDomainUrl;
+  private issuerUri = this.config.issuerUri;
+  private oidcConfig?: OidcConfig;
   private authClientID = this.config.authClientID;
   private authLoginResponseType = this.config.authLoginResponseType;
   private authLoginScope = this.config.authLoginScope;
   private authLoginGrantType = this.config.authLoginGrantType;
+  private identityProvider = this.config.identityProvider;
 
   private authLoginRedirectUrl = window.location.origin;
   private authLogout = window.location.origin + '/';
@@ -61,20 +69,50 @@ export class AuthService {
     return localStorage.getItem('userid') as string;
   }
 
+  private autoconfigure(): Observable<OidcConfig> {
+    if (this.oidcConfig) {
+      return of(this.oidcConfig);
+    }
+
+    const wellKnownUrl = `${this.issuerUri}/.well-known/openid-configuration`;
+    return this.http.get(wellKnownUrl).pipe(
+      map(result => {
+        this.oidcConfig = result as OidcConfig;
+        return this.oidcConfig;
+      }),
+      catchError(err => {
+        console.error(`Failed requesting ${wellKnownUrl}`, JSON.stringify(err, undefined, 2));
+        return throwError({ error: `Authentication configuration failed - ${err}` });
+      })
+    );
+  }
+
   loginWithRedirect(): void {
     // clear SessionStorage first
     this.clearSessionStorage();
-    if (this.baseUrl.length > 5) {
-      const params = new HttpParams()
-        .set('client_id', this.authClientID)
-        .set('response_type', this.authLoginResponseType)
-        .set('scope', this.authLoginScope)
-        .set('redirect_uri', this.authLoginRedirectUrl);
-      // Redirect to AWS Cognito hosted UI
-      window.location.href = `${this.baseUrl}/auth?${params.toString()}`;
-    } else {
-      throwError({error: `Login unsuccessful - missing URL ${this.baseUrl}`});
-    }
+
+    this.autoconfigure()
+      .subscribe((oidcConfig) => {
+        const tokenEndpoint = oidcConfig.token_endpoint;
+        const authorizationEndpoint = oidcConfig.authorization_endpoint;
+
+        if (tokenEndpoint.length > 5) {
+          let params = new HttpParams()
+            .set('client_id', this.authClientID)
+            .set('response_type', this.authLoginResponseType)
+            .set('scope', this.authLoginScope)
+            .set('redirect_uri', this.authLoginRedirectUrl)
+
+          if (this.identityProvider) {
+            params = params.set('identity_provider', this.identityProvider);
+          }
+
+          // Redirect to AWS Cognito hosted UI
+          window.location.href = `${authorizationEndpoint}?${params.toString()}`;
+        } else {
+          throwError({ error: `Login unsuccessful - missing URL ${tokenEndpoint}` });
+        }
+      })
   }
 
   public handleRedirectCallback(code: string): Observable<TokenMsg> {
@@ -90,12 +128,16 @@ export class AuthService {
         grant_type: this.authLoginGrantType,
         client_id: this.authClientID,
         code,
-        redirect_uri: this.authLoginRedirectUrl
+        redirect_uri: this.authLoginRedirectUrl,
+        response_type: 'code',
       }
     });
 
-    const url = `${this.baseUrl}/token`;
-    return this.http.post<TokenMsg>(url, body.toString(), header);
+    return this.autoconfigure().pipe(
+      switchMap(oidcConfig => {
+        return this.http.post<TokenMsg>(oidcConfig.token_endpoint, body.toString(), header);
+      })
+    );
   }
 
   public getUserInfo(token: string): Observable<UserInfo> {
@@ -106,8 +148,11 @@ export class AuthService {
         Accept: '*/*',
       })
     };
-    const url = `${this.baseUrl}/userinfo`;
-    return this.http.get<UserInfo>(url, header);
+    return this.autoconfigure().pipe(
+      switchMap(oidcConfig => {
+        return this.http.get<UserInfo>(oidcConfig.userinfo_endpoint, header);
+      })
+    );
   }
 
   saveSessionAuth(token: string, userid: string): void {
@@ -215,7 +260,21 @@ export class AuthService {
     const params = new HttpParams()
       .set('client_id', this.authClientID)
       .set('logout_uri', `${this.authLogout}`);
-    window.location.href = `${this.baseUrl}/logout?${params.toString()}`;
+    if (this.oidcConfig) {
+      const token_endpoint = this.oidcConfig.token_endpoint;
+      const end_session_endpoint = this.oidcConfig.end_session_endpoint;
+      this.oidcConfig = undefined;
+
+      this.clearSessionStorage();
+
+      if (end_session_endpoint) {
+        window.location.href = `${end_session_endpoint}?${params.toString()}`;
+      } else {
+        const logout_endpoint = new URL('/logout', token_endpoint).href;
+        console.log('Guessing a Cognito-style logout endpoint', logout_endpoint);
+        window.location.href = `${logout_endpoint}?${params.toString()}`;
+      }
+    }
   }
 
   refreshAuthSession(token: TokenMsg): Observable<TokenMsg> {
@@ -230,14 +289,18 @@ export class AuthService {
         fromObject: {
           grant_type: 'refresh_token',
           client_id: this.authClientID,
-          refresh_token: token.refresh_token
+          refresh_token: token.refresh_token,
+          response_type: 'code',
         }
       });
     } else {
       throwError({error: 'Token is missing'});
     }
-    const url = `${this.baseUrl}/token`;
-    return this.http.post<TokenMsg>(url, body.toString(), {headers});
+    return this.autoconfigure().pipe(
+      switchMap(oidcConfig => {
+        return this.http.post<TokenMsg>(oidcConfig.token_endpoint, body.toString(), {headers});
+      })
+    );
   }
 
   redirectToLogout(): void {

@@ -1,16 +1,29 @@
 version: '3.2'
 services:
+  db:
+    container_name: snapagogo_db
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: yes
+      MYSQL_DATABASE: s2s
+    ports:
+      - 3306:3306
+    volumes:
+      - snapagogo_db:/var/lib/mysql
+
   clair:
     container_name: snapagogo_api
     image: ontoserver.azurecr.io/snapagogo-api:latest
     environment:
       - snap2snomed.cors.allowedOriginPatterns=*
       - snap2snomed.cors.allowedHeaders=*
-      - snap2snomed.cors.allowedMethods=OPTIONS,GET,POST,PUT,PATCH
+      - snap2snomed.cors.allowedMethods=OPTIONS,GET,POST,PUT,PATCH,DELETE
       - snap2snomed.cors.maxAge=3600
       - snap2snomed.swagger.applicationVersion=0.1.0-SNAPSHOT
-      - snap2snomed.swagger.applicationDescription=API Backend for the Snap2Snomed mapping tool
-      - snap2snomed.swagger.applicationName=Snap2SNOMED API
+      - snap2snomed.swagger.applicationDescription=API Backend for the Snapagogo mapping tool
+      - snap2snomed.swagger.applicationName=Snapagogo API
       - snap2snomed.swagger.termsOfService=http://swagger.io/terms/
       - snap2snomed.swagger.licenseName=Apache 2.0
       - snap2snomed.swagger.licenseUrl=https://www.apache.org/licenses/LICENSE-2.0
@@ -22,6 +35,8 @@ services:
       - spring.security.oauth2.resourceserver.jwt.issuer-uri=https://auth.ontoserver.csiro.au/auth/realms/aehrc
       - snap2snomed.security.authDomainUrl=https://auth.ontoserver.csiro.au/auth/realms/aehrc/protocol/openid-connect
       - snap2snomed.defaultTerminologyServer.url=https://r4.ontoserver.csiro.au/fhir
+      - snap2snomed.privacyPolicyUrl=https://www.csiro.au/en/about/Policies/Privacy
+      - snap2snomed.targetCodeSystems=http://snomed.info/sct,http://loinc.org,http://www.nlm.nih.gov/research/umls/rxnorm
       - spring.datasource.driverClassName=software.aws.rds.jdbc.mysql.Driver
       - spring.datasource.url=jdbc:mysql:aws://host.docker.internal/snapagogo
       - snap2snomed.security.adminGroup=snapagogoadmin

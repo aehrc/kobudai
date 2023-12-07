@@ -44,6 +44,7 @@
         <div class="search-view card-col">
           <app-concept-search [active]="!opened"
                               [scope]="mapping?.toScope || ''"
+                              [system]="mapping?.toSystem || ''"
                               [version]="mapping?.toVersion || ''"
                               [initial]="targetConceptSearchText">
             <span class="search-title">{{'MAP.SEARCH_TARGET' | translate}}</span>
