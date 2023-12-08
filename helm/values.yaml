@@ -67,7 +67,7 @@ ingress:
   tlsSecretName: snapagogo-tls-secret
   className: snapagogo-nginx
   nginx:
-    sslRedirect: false
+    sslRedirect: true
 
 certmanager:
   enabled: true
