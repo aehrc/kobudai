@@ -1,8 +1,6 @@
 ## Default values for snapagogo
 
 snapagogo:
-  # image: [Docker repository for image]
-
   api:
     image: ontoserver.azurecr.io/snapagogo-api:latest
     resources:
