@@ -15,6 +15,10 @@ spec:
       imagePullSecrets:
       - name:  {{ $.Values.repoSecret.name }}
       {{- end }}
+      initContainers:
+      - name: wait-for-elasticsearch
+        image: busybox
+        command: ['sh', '-c', 'until nc -z {{ .Release.Name }}-db-service:3306; do echo waiting for database; sleep 2; done;']
       containers:
         - name: {{ .Release.Name }}-api
           image: {{ required "A snapagogo.api.image value is required" .Values.snapagogo.api.image }}
@@ -52,14 +56,14 @@ spec:
                   name: {{ .Release.Name }}-db-password
                   key: password
             - name: spring.datasource.url
-              value: jdbc:mysql:aws://{{ .Release.Name }}-db-service:3306/s2s?cachePrepStmts=true&useServerPrepStmts=false&rewriteBatchedStatements=true&socketTimeout=480000
+              value: jdbc:mysql:aws://{{ .Release.Name }}-db-service:3306/{{ $.Values.snapagogo.database.name }}?cachePrepStmts=true&useServerPrepStmts=false&rewriteBatchedStatements=true&socketTimeout=480000
             {{- end }}
       {{- if .Values.snapagogo.tolerations }}
       tolerations:
         {{- range $index, $element := .Values.snapagogo.tolerations }}
         - key: {{ $element.key }}
           operator: {{ $element.operator }}
-          value: {{ $element.value }}
+          value: {{ $element.value | quote }}
           effect: {{ $element.effect }}
         {{- end }}
       {{- end }}

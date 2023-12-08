@@ -19,41 +19,55 @@ snapagogo:
       spring.datasource.driverClassName:                    software.aws.rds.jdbc.mysql.Driver
       spring.datasource.username:                           root
       snap2snomed.security.adminGroup:                      /snapagogoadmin
-
+      snap2snomed.security.clientId:                        snapagogo
+      snap2snomed.security.audience:                        snapagogo
+      snap2snomed.privacyPolicyUrl:                         https://www.csiro.au/en/about/Policies/Privacy
+      snap2snomed.targetCodeSystems:                        http://snomed.info/sct,http://loinc.org,http://www.nlm.nih.gov/research/umls/rxnorm
+      snap2snomed.defaultTerminologyServer.url:             https://r4.ontoserver.csiro.au/fhir
   ui:
     image: ontoserver.azurecr.io/snapagogo-api:latest
+    apiBaseUrl: https://api.snapagogo.app
     hostNames:
       - www.snapagogo.app
       - snapagogo.app
     resources:
-      memory: 256m
+      memory: 256M
       memorylimit: false
 
   database:
     password: setonthecommandline
+    name: s2s
 
-  tolerations: false
+
   highPriority: false
+
+  tolerations:
+    - key: "high-memory"
+      operator: "Equal"
+      value: "true"
+      effect: "NoSchedule"
+    - key: "kubernetes.azure.com/scalesetpriority"
+      operator: "Equal"
+      value: "spot"
+      effect: "NoSchedule"
 
 nginx-ingress:
   controller:
     enableSnippets: true
     enableCertManager: true
-    ingressClassResource:
-      name: snapagogo-nginx
-      controllerValue: 'k8s.io/snapagogo-nginx'
-      enabled: true
     service:
       annotations:
         service.beta.kubernetes.io/azure-dns-label-name: snapagogo
+    # nginx 1.0.2
     ingressClass:
+      name: snapagogo-nginx
       create: true
 
 ingress:
   tlsSecretName: snapagogo-tls-secret
-  class: snapagogo-nginx
+  className: snapagogo-nginx
   nginx:
-    sslRedirect: true
+    sslRedirect: false
 
 certmanager:
   enabled: true

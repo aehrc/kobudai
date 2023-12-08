@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-ui-config
+  labels:
+    app: {{ .Release.Name }}-ui-config
+data:
+  config.json: |
+    {
+      "apiBaseUrl": "{{ .Values.snapagogo.ui.apiBaseUrl }}",
+      "logo": "assets/img/logo.png"
+    }

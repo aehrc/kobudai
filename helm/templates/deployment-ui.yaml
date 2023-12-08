@@ -29,19 +29,20 @@ spec:
           {{ end }}
           ports:
             - containerPort: 80
-          livenessProbe:
-            httpGet:
-              path: /actuator/health
-              port: 8080
-            initialDelaySeconds: 15
-            periodSeconds: 5
-            failureThreshold: 10
+          volumeMounts:
+            - name: ui-config
+              mountPath: /usr/share/nginx/html/assets/config.json
+              subPath: config.json
+      volumes:
+        - name: ui-config
+          configMap:
+            name: {{ .Release.Name }}-ui-config
       {{- if .Values.snapagogo.tolerations }}
       tolerations:
         {{- range $index, $element := .Values.snapagogo.tolerations }}
         - key: {{ $element.key }}
           operator: {{ $element.operator }}
-          value: {{ $element.value }}
+          value: {{ $element.value | quote }}
           effect: {{ $element.effect }}
         {{- end }}
       {{- end }}

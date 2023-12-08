@@ -17,7 +17,7 @@ services:
     depends_on:
       - db
     container_name: snapagogo_api
-    image: ontoserver.azurecr.io/snapagogo-api:latest
+    image: ontoserver.azurecr.io/snapagogo-api:azure-deployment
     environment:
       - snap2snomed.cors.allowedOriginPatterns=*
       - snap2snomed.cors.allowedHeaders=*

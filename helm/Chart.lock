@@ -3,4 +3,4 @@ dependencies:
   repository: https://helm.nginx.com/stable
   version: 1.0.2
 digest: sha256:4aa67f5f71b22bb2be232295f400e784bce92cbe823489bc986ba8ec1af438cf
-generated: "2023-12-07T12:26:52.288489+10:00"
+generated: "2023-12-08T16:09:52.283874+10:00"

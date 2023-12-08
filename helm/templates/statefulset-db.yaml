@@ -38,6 +38,8 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}-db-password
                   key: password
+            - name: MYSQL_DATABASE
+              value: {{ .Values.snapagogo.database.name }}
           volumeMounts:
           - name: snapagogo-db-pvc
             mountPath: /var/lib/mysql
@@ -46,7 +48,7 @@ spec:
         {{- range $index, $element := .Values.snapagogo.tolerations }}
         - key: {{ $element.key }}
           operator: {{ $element.operator }}
-          value: {{ $element.value }}
+          value: {{ $element.value | quote }}
           effect: {{ $element.effect }}
         {{- end }}
       {{- end }}
