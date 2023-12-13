@@ -136,7 +136,7 @@ stages:
             displayName: 'Copy Helm deployment script'
             inputs:
               contents: 'helm/deploy.sh'
-              targetFolder: '$(Build.ArtifactStagingDirectory)/helm/deploy.sh'
+              targetFolder: '$(Build.ArtifactStagingDirectory)/helm'
               flattenFolders: true
           - task: PublishPipelineArtifact@1
             inputs:
