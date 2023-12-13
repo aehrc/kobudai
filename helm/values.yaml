@@ -12,6 +12,9 @@ snapagogo:
       - api.snapagogo.app
     config:
       # This section is for server configuration via environment variables
+      sentry.dsn:                                           https://5180085a05cdc11306020b69e139503b@o144408.ingest.sentry.io/4505673387343872
+      ui.sentry.dsn:                                        https://7af28975eeab0c505ba856a7df34d9c7@o144408.ingest.sentry.io/4505673382035456
+      sentry.environment:                                   K8S
       spring.security.oauth2.resourceserver.jwt.issuer-uri: https://auth.ontoserver.csiro.au/auth/realms/aehrc
       snap2snomed.security.authDomainUrl:                   https://auth.ontoserver.csiro.au/auth/realms/aehrc/protocol/openid-connect
       spring.datasource.driverClassName:                    software.aws.rds.jdbc.mysql.Driver

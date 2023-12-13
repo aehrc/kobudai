@@ -131,3 +131,13 @@ stages:
               targetPath: '$(System.DefaultWorkingDirectory)/terraform'
               artifact: 'snapagogo-terraform'
               publishLocation: 'pipeline'
+          - task: CopyFiles@2
+            displayName: 'Copy deployment script and env specific values.yaml'
+            inputs:
+              contents: 'helm/deploy.sh'
+              targetFolder: '$(Build.ArtifactStagingDirectory)/helm/deploy.sh'
+              flattenFolders: true
+          - task: CmdLine@2
+            displayName: Package Snapagogo Helm chart
+            inputs:
+              script: helm package --dependency-update --destination $(Build.ArtifactStagingDirectory)/helm ./helm
