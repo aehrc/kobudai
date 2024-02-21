@@ -175,6 +175,7 @@
     "TARGET_VERSION": "Target code system version",
     "TARGET_VERSION_ERROR": "Invalid target version",
     "TARGET_SCOPE": "Scope of map target",
+    "TARGET_SCOPE_ALL": "All {{systemLabel}} codes",
     "TARGET_SCOPE_COMMON": "Scope of map target (Common list)",
     "TARGET_SCOPE_ERROR": "Target scope is required, it must be a valid ECL and cannot start with a space",
     "TARGET_SCOPE_INVALID_ERROR": "Target scope is not a valid ECL",
@@ -380,6 +381,11 @@
     "CANCEL": "CANCEL",
     "CONFIRM_NO_MAP": "Changing to No Map will remove any existing targets"
   },
+  "SYSTEM": {
+    "http://snomed.info/sct": "SNOMED CT",
+    "http://loinc.org": "LOINC",
+    "http://www.nlm.nih.gov/research/umls/rxnorm": "RxNorm"
+  },
   "EDITION": {
     "11000146104":    "Netherlands Edition",
     "11000172109":    "Belgian Edition",
@@ -402,7 +408,9 @@
     "83821000000107": "UK Edition",
     "900000000000207008": "International  Edition",
     "999000021000000109": "UK Clinical Edition",
+    "999000011000001104": "UK Drugs Edition",
     "999000031000000106": "UK Edition",
+    "999991001000101": "IPS Edition",
     "EXPERIMENTAL":   "Unreleased"
   },
   "SEARCH": {

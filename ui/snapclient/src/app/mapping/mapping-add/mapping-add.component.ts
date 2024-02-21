@@ -64,6 +64,7 @@ export class MappingAddComponent implements OnInit {
   editionToVersionsMapLoaded = false;
   editionVersions: Release[] = []; // versions of the selected edition (often a country)
   existingMapVersions: string[] | null = null;
+  hasEditions = false;
   loading = false;
   eclScope = '*';
   selectedEdition : string = "";
@@ -180,6 +181,7 @@ export class MappingAddComponent implements OnInit {
       data => {
         this.editionToVersionsMap = data;
         this.editionToVersionsMapLoaded = true;
+        this.hasEditions = !(this.editionToVersionsMap?.size && this.editionToVersionsMap?.size === 1 && this.editionToVersionsMap?.has(""));
         if (this.mode === 'FORM.CREATE' || this.mode === 'FORM.COPY') {
           this.selectedEdition = '';
           if (this.editionToVersionsMap?.size === 1) {

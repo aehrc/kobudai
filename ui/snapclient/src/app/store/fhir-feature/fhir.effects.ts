@@ -66,13 +66,15 @@ export class FhirEffects {
               label = label.substring(0, label?.indexOf(ver));
             }
             let version = ver;
+            let editionLabel = "";
             if ('http://snomed.info/sct' === action.system) {
               this.translate.get(`EDITION.${edition}`).subscribe(msg => { label = msg; });
               version = ver?.replace(/.*\//, '');
+              editionLabel = label ?? "";
             }
             return {
               allCodes: allCodes,
-              edition: label,
+              edition: editionLabel,
               system: action.system,
               version: version,
               uri: ver,

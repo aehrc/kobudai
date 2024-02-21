@@ -61,12 +61,12 @@
             <mat-select id="toSystemSelect" name="toSystem"
                         [(ngModel)]="mappingModel.toSystem" (selectionChange)="changeSystem($event)" >
               <mat-option *ngFor="let system of config.targetCodeSystems" [value]="system">
-                {{system}}
+                {{'SYSTEM.'+system | translate}}
               </mat-option>
             </mat-select>
           </mat-form-field>
           <div class="source-field">
-            <mat-form-field class="field-withbutton-width multi-field-row-field">
+            <mat-form-field *ngIf="hasEditions" class="field-withbutton-width multi-field-row-field">
               <mat-label>{{ 'MAP.TARGET_EDITION' | translate }}</mat-label>
               <mat-select id="toEdition" name="toEdition" [(ngModel)]="selectedEdition"
                           (selectionChange)="changeEdition($event.value)" required>
@@ -92,12 +92,12 @@
               <mat-icon>sync</mat-icon>
             </button>
           </div>
-          <mat-form-field class="field-full-width" *ngIf="'http://snomed.info/sct' !== mappingModel.toSystem && '' !== mappingModel.toScope">
+          <mat-form-field class="field-full-width" *ngIf="'http://snomed.info/sct' !== mappingModel.toSystem">
             <mat-label for="toValueSet">{{ 'MAP.TARGET_SCOPE' | translate }}</mat-label>
             <mat-select id="toValueSet" name="toValueSet"
                         [(ngModel)]="mappingModel.toScope">
-              <mat-option [value]="mappingModel.toScope">
-                {{mappingModel.toScope}}
+              <mat-option [value]="mappingModel.toScope" *ngIf="'' !== mappingModel.toScope">
+                {{'MAP.TARGET_SCOPE_ALL' | translate : {systemLabel: ('SYSTEM.'+mappingModel.toSystem | translate)} }}
               </mat-option>
             </mat-select>
           </mat-form-field>

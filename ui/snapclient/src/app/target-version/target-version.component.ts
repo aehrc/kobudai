@@ -28,7 +28,7 @@ export class TargetVersionComponent {
 
   @Input() set version(v: string | null | undefined) {
     if ('http://snomed.info/sct' !== this.system) {
-     this.label = this.system;
+      this.translate.get('SYSTEM.'+this.system).subscribe(label => this.label = label);
       this.effectiveTime = v || 'Latest available';
       this.country = null;
       return;
