@@ -1,3 +1,8 @@
+.container,
+.container > mat-drawer-container {
+  height: 100%;
+}
+
 .mapping-edit {
   background-color: #e6e6e6;
 }
@@ -44,20 +49,50 @@ ul.sources-list li {
 
 .actions-card .mat-card-content {
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.task-dropdown {
+.task-wrapper {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
   margin-bottom: 20px;
 }
 
+.task-dropdown {
+  width: 100%;
+  margin-right: 40px;
+}
+
+#container-sidenav-view {
+  height: calc(100% - 192px);
+}
+
 /* Table */
+.container-table-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: white;
+  padding: 10px;
+  margin: 0 10px;
+  border-radius: 4px 4px 0 0;
+}
+
 .container-table {
-  height: calc(75vh - 100px);
+  height: calc(100% - 56px);
+  max-height: calc(100% - 56px);
+  margin: 0 10px;
+  border-radius: 0 0 4px 4px;
+  overflow: auto;
 }
 
 .container-sidebar {
   width: calc(25vw - 50px);
   margin-right: -2px;
+  border-radius: 4px 0 0 4px;
 }
 
 .compact-table {
@@ -235,18 +270,36 @@ td.mat-cell {
   justify-content: space-between;
 }
 
+.table-bulk-edit {
+  padding-left: 20px;
+}
+
 .table-actions {
   display: flex;
   align-items: center;
-  margin-bottom: 0px;
   justify-content: flex-end;
-  background-color: white;
-  padding: 10px;
+}
+
+.table-actions mat-icon {
+  font-size: 22px;
+}
+
+.table-actions > * {
+  margin-left: 10px;
+}
+
+::ng-deep .filter-button-toggle .mat-button-toggle-label-content {
+  line-height: 34px;
+  padding: 0 !important;
 }
 
 .button-row {
   display: flex;
   align-items: flex-end;
+}
+
+.import-button {
+  margin-left: 10px;
 }
 
 .mapping-details {
@@ -303,4 +356,9 @@ td.mat-cell {
 
 .hide-filter {
   display: none;
+}
+
+.bottom-paginator {
+  border-radius: 0 0 4px 4px;
+  left: 0;
 }

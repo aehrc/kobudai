@@ -45,8 +45,14 @@ div.row > #map-title {
   flex: 4;
 }
 
-a.mat-primary {
-  position: absolute;
-  bottom: 0.5em;
-  right: 0.5em;
+.edit-button-wrapper {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+.edit-button-wrapper > small {
+  white-space: nowrap;
+}
+.edit-button-wrapper .mat-stroked-button {
+  margin-top: 10px;
 }

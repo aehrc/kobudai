@@ -44,6 +44,10 @@
   overflow-y: auto;
 }
 
+.main__content > div {
+  height: 100%;
+}
+
 .navigation-items {
   display: inline-flex;
   justify-content: space-evenly;

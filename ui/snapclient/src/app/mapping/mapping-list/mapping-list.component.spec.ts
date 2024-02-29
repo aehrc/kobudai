@@ -113,7 +113,7 @@ describe('MappingListComponent', () => {
     fixture.detectChanges();
     el = fixture.debugElement.query(By.css('button'));
     expect(el).toBeTruthy();
-    expect(el.nativeElement.textContent).toBe('MAP.MAP_ADD');
+    expect(el.nativeElement.textContent).toBe('add MAP.MAP_ADD');
   });
 
   it('should show NO RESULTS if no projects', () => {

@@ -27,12 +27,14 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
-        <small><i>{{'MAP.LAST_UPDATED' | translate}}: {{mapping.modified | lastupdated}}</i></small>
-        <p *ngIf="hasHandler()">
-          <a class="mat-primary" mat-stroked-button (click)="clickHandler()">
-            {{(editable ? 'MAP.MAP_EDIT_BUTTON' : 'MAP.MAP_VIEW_BUTTON') | translate}}
-          </a>
-        </p>
+        <div class="edit-button-wrapper">
+          <small><i>{{'MAP.LAST_UPDATED' | translate}}: {{mapping.modified | lastupdated}}</i></small>
+          <div *ngIf="hasHandler()">
+            <a class="mat-primary" mat-stroked-button (click)="clickHandler()">
+              {{(editable ? 'MAP.MAP_EDIT_BUTTON' : 'MAP.MAP_VIEW_BUTTON') | translate}}
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </mat-card-content>

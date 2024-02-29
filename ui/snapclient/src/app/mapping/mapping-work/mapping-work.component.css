@@ -1,3 +1,11 @@
+.mapping-work-wrapper {
+  height: calc(100% - 10px);
+}
+
+.container {
+  height: 100%;
+}
+
 #table-view {
   height: calc(100vh - 180px);
   min-width: 940px;
@@ -15,14 +23,13 @@
 
 .search-container {
   max-height: 405px;
-  margin: 0 10px;
   display: flex;
   justify-content: space-between;
 }
 
 .tree-view {
   flex: 2;
-  max-height: 380px;
+  max-height: 395px;
   position: relative;
 }
 
@@ -34,8 +41,8 @@
 }
 
 .hierarchy-view {
-  height: 380px;
-  max-height: 380px;
+  height: 395px;
+  max-height: 395px;
 }
 
 .search-view {
@@ -67,6 +74,17 @@
 .container-table {
   height: 42vh;
   overflow: auto;
+  border-radius: 0 0 4px 4px;
+}
+
+.container-table-actions {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0px;
+  justify-content: space-between;
+  background-color: white;
+  padding: 10px;
+  border-radius: 4px 4px 0 0;
 }
 
 .container-table-search {
@@ -82,7 +100,8 @@
 
 .col-left {
   padding-left: 0px;
-  width: 75%
+  width: 100%;
+  margin-right: 40px;
 }
 
 .row-actions {
@@ -101,6 +120,10 @@
   }
 }
 
+.table-bulk-edit {
+  padding-left: 20px;
+}
+
 .table-actions {
   /* display: flex;
   align-items: flex-end;
@@ -111,7 +134,19 @@
   margin-bottom: 0px;
   justify-content: flex-end;
   background-color: white;
-  padding: 10px;
+}
+
+.table-actions mat-icon {
+  font-size: 22px;
+}
+
+.table-actions > * {
+  margin-left: 10px;
+}
+
+::ng-deep .filter-button-toggle .mat-button-toggle-label-content {
+  line-height: 34px;
+  padding: 0 !important;
 }
 
 .mat-slide-toggle {

@@ -13,8 +13,12 @@
       </div>
       <mat-card class="actions-card">
         <mat-card-content>
-          <div class="task-dropdown" *ngIf="myTasks.length > 0; else notasks">
-            <app-task-select [selectedLabel]="selectedLabel" [myTasks]="myTasks" [showRows]="true"></app-task-select>
+          <div class="task-wrapper">
+            <div class="task-dropdown">
+              <app-task-select [selectedLabel]="selectedLabel" [myTasks]="myTasks" [showRows]="true"></app-task-select>
+            </div>
+            <span><button class="mat-primary" mat-raised-button
+                          (click)="sidenav.toggle()">{{'TASK.TASKS_BUTTON' | translate }}</button></span>
           </div>
           <div class="button-row">
             <span>
@@ -26,48 +30,49 @@
                 <a mat-menu-item (click)="exportMapView('xlsx')">{{'MAP.EXPORT_XLSX' | translate}}</a>
               </mat-menu>
             </span>
-            <button class="mat-primary" mat-stroked-button *ngIf="isOwner()"
+            <button class="mat-primary import-button" mat-stroked-button *ngIf="isOwner()"
                 (click)="clickImport()">{{'MAP.IMPORT' | translate}}</button>
-            <span class="space-fill">&nbsp;</span>
-            <ng-template #notasks>
-              <p>
-                <mat-chip color="accent" selected>
-                  <mat-icon>warning</mat-icon>
-                  {{'MAP.NO_MY_TASKS' | translate}}</mat-chip>
-              </p>
-            </ng-template>
             <span class="space-fill">&nbsp;</span>
             <button id="validate-targets" mat-stroked-button *ngIf="isOwner()" (click)="clickValidateTargets()"
                     matTooltip="{{'MAP.VALIDATE_TARGETS_TOOLTIP' | translate}}"
                     matTooltipShowDelay="1000">
               {{'MAP.VALIDATE_TARGETS' | translate}}
             </button>
-            <button id="bulk-change" mat-stroked-button *ngIf="isOwner()" (click)="clickBulkChange()"
-                    [disabled]="!hasSelectedRows()" matTooltip="{{'MAP.BULK_CHANGE_TOOLTIP' | translate}}">
-              {{'TABLE.BULK_CHANGE' | translate}}
-            </button>
-            <span><button class="mat-primary" mat-stroked-button
-                          (click)="sidenav.toggle()">{{'TASK.TASKS_BUTTON' | translate }}</button></span>
           </div>
         </mat-card-content>
       </mat-card>
     </div>
-    <div class="table-actions">
-      <mat-slide-toggle
-        [(ngModel)]="filterEnabled">{{'TABLE_FILTER.TABLE_FILTER_TOGGLE_NAME' | translate}}</mat-slide-toggle>
-      <button mat-stroked-button [disabled]="!filterEnabled"
-              (click)="clearFilter()">{{'TABLE_FILTER.CLEAR_FILTER_BUTTON_NAME' | translate}}</button>
-      <button mat-stroked-button [matMenuTriggerFor]="menu">{{'TABLE_FILTER.SHOW_HIDE_BUTTON_NAME' | translate}}</button>
-      <mat-menu #menu="matMenu">
-       <!-- mat-checkbox is in a div to stop multiple items appearing on the one line and to make scroll work -->
-        <div mat-menu-item *ngFor="let column of hideShowColumns">
-          <mat-checkbox [checked]="true" (change)="onHideShowChange($event, column)">{{getHideShowItemLabel(column) | translate}}</mat-checkbox> 
-        </div>
-      </mat-menu> 
-      &nbsp;
-    </div>
-    <mat-sidenav-container autosize>
+    <mat-sidenav-container autosize id="container-sidenav-view">
       <mat-sidenav-content>
+        <div class="container-table-actions">
+          <div class="table-bulk-edit">
+            <button id="bulk-change" mat-stroked-button *ngIf="isOwner()" (click)="clickBulkChange()"
+                    [disabled]="!hasSelectedRows()" matTooltip="{{'MAP.BULK_CHANGE_TOOLTIP' | translate}}">
+              {{'TABLE.BULK_CHANGE' | translate}}
+            </button>
+          </div>
+          <div class="table-actions">
+            <button mat-stroked-button *ngIf="filterEnabled" [disabled]="!filterEnabled" color="accent"
+                    (click)="clearFilter()">{{'TABLE_FILTER.CLEAR_FILTER_BUTTON_NAME' | translate}}</button>
+            <mat-button-toggle
+              class="mat-stroked-button filter-button-toggle"
+              [checked]="filterEnabled" (change)="filterEnabled = $event.source.checked">
+              <mat-icon>filter_list</mat-icon>
+              {{'TABLE_FILTER.TABLE_FILTER_TOGGLE_NAME' | translate}}
+            </mat-button-toggle>
+            <button mat-stroked-button [matMenuTriggerFor]="menu">
+              <mat-icon class="material-icons-outlined">view_column</mat-icon>
+              {{'TABLE_FILTER.SHOW_HIDE_BUTTON_NAME' | translate}}
+            </button>
+            <mat-menu #menu="matMenu">
+              <!-- mat-checkbox is in a div to stop multiple items appearing on the one line and to make scroll work -->
+              <div mat-menu-item *ngFor="let column of hideShowColumns">
+                <mat-checkbox [checked]="true" (change)="onHideShowChange($event, column)">{{getHideShowItemLabel(column) | translate}}</mat-checkbox> 
+              </div>
+            </mat-menu> 
+            &nbsp;
+          </div>
+        </div>
         <div class="container-table">
           <table id="table-mapping" mat-table matTableFilter class="compact-table"
                  [exampleEntity]="filterEntity" [filterType]="filterType"
@@ -387,8 +392,7 @@
                 [class.selected-row]="mappingTableSelector?.checkSelected(row)"></tr>
 
           </table>
-          <mat-paginator class="bottom-paginator"
-                         #paginator class="mat-paginator-sticky"
+          <mat-paginator #paginator class="bottom-paginator mat-paginator-sticky"
                          [length]="page?.totalElements || 0"
                          [pageIndex]="paging?.pageIndex"
                          [pageSize]="paging?.pageSize"

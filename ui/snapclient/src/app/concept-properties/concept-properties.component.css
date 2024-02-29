@@ -1,6 +1,6 @@
 .properties {
   overflow: auto;
-  max-height: 340px;
+  max-height: 326px;
 }
 
 .mat-table {
@@ -49,4 +49,8 @@
 
 .properties-header {
   width: 150px;
+}
+
+.properties-control {
+  min-height: 200px;
 }

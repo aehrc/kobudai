@@ -100,6 +100,7 @@ table.details-table td {
   height: 30px;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 10px;
 }
 
 .import-existing-map div .mat-icon:hover {

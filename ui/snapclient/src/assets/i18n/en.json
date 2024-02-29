@@ -117,6 +117,7 @@
   "MAP": {
     "BULK_CHANGE_TOOLTIP": "Perform bulk changes to selected rows",
     "BULK_UPDATE": "BULK UPDATE",
+    "DELETE": "DELETE",
     "DESCRIPTION": "Description",
     "DESCRIPTION_ERROR": "Description text cannot start with a space",
     "ECL_HELP": "ECL Quick Reference",

@@ -10,6 +10,13 @@
   vertical-align: super;
 }
 
-#task-select .mat-select-arrow-wrapper {
+::ng-deep #task-select .mat-select-arrow-wrapper {
   vertical-align: bottom !important;
+}
+
+.task-select-wrapper {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: space-between;
 }

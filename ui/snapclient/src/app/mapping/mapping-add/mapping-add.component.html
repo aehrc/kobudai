@@ -131,7 +131,7 @@
             </mat-hint>
           </mat-form-field>
           <div *ngIf="mode === 'FORM.CREATE'" class="import-existing-map">
-            <button mat-raised-button color="primary"  title="{{ 'FORM.IMPORT_EXISTING_MAP' | translate }}"
+            <button mat-stroked-button color="primary"  title="{{ 'FORM.IMPORT_EXISTING_MAP' | translate }}"
                 type="button" (click)="onImportMapping($event, myForm)">
                 {{ 'FORM.IMPORT_EXISTING_MAP' | translate }}
               </button>
@@ -142,6 +142,10 @@
                 title="{{ 'FORM.CLEAR_SELECTED_FILE' | translate }}"
                 *ngIf="mappingFile?.source?.source_file?.name">cancel</mat-icon>
             </div>
+          </div>
+          <div *ngIf="mode === 'FORM.CREATE'" class="alert-warning warning-message">
+            <mat-icon class="mat-icon-warning">info</mat-icon>
+            <div [innerHtml]="'IMPORT.IMPORT_LARGE_MAP' | translate" class="infotext"></div>
           </div>
         </div>
         <div *ngIf="mode === 'FORM.VIEW' || mode === 'FORM.EDIT'">
@@ -175,10 +179,6 @@
           <app-project-roles (errorEvent)="errorUpdate($event)" [readonly]="mode === 'FORM.VIEW'" [project]="mappingModel.project"></app-project-roles>
         </div>
       </mat-card-content>
-      <div class="alert-warning warning-message">
-        <mat-icon class="mat-icon-warning">info</mat-icon>
-        <div [innerHtml]="'IMPORT.IMPORT_LARGE_MAP' | translate" class="infotext"></div>
-      </div>
       <mat-divider></mat-divider>
       <mat-card-actions>
         <div class="alert-danger warning-message" *ngIf="warnDelete">

@@ -1,4 +1,4 @@
-<div *ngIf="task">
+<div *ngIf="task" class="mapping-work-wrapper">
   <mat-drawer-container class="container">
     <div *ngIf="loading">
       <app-loading-spinner></app-loading-spinner>
@@ -30,11 +30,6 @@
                                  (updateTableEvent)="updateTable($event)"></app-automap>
                   </ng-template>
                 </span>
-              <button mat-stroked-button
-                      (click)="clickBulkChange()"
-                      [disabled]="(isAdmin && currentUser?.id !== task.assignee?.id) ||  !hasSelectedRows()">
-                {{'TABLE.BULK_CHANGE' | translate}}
-              </button>
             </div>
             <h2>{{task.type | translate}}</h2>
           </div>
@@ -75,19 +70,35 @@
         </div>
       </div>
       <div id="container-table-work">
-        <div class="table-actions">
-          <mat-slide-toggle
-            [(ngModel)]="filterEnabled">{{'TABLE_FILTER.TABLE_FILTER_TOGGLE_NAME' | translate}}</mat-slide-toggle>
-          <button mat-stroked-button [disabled]="!filterEnabled"
-                  (click)="mapTable.clearFilter()">{{'TABLE_FILTER.CLEAR_FILTER_BUTTON_NAME' | translate}}</button>
-          <button mat-stroked-button [matMenuTriggerFor]="menu">{{'TABLE_FILTER.SHOW_HIDE_BUTTON_NAME' | translate}}</button>
-          <mat-menu #menu="matMenu">
-            <!-- mat-checkbox is in a div to stop multiple items appearing on the one line and to make scroll work-->
-            <div mat-menu-item *ngFor="let column of hideShowColumns">
-              <mat-checkbox [checked]="true" (change)="onHideShowChange($event, column)">{{getHideShowItemLabel(column) | translate}}</mat-checkbox> 
-            </div>          
-          </mat-menu>
-          &nbsp;
+        <div class="container-table-actions">
+          <div class="table-bulk-edit">
+            <button mat-stroked-button
+                    (click)="clickBulkChange()"
+                    [disabled]="(isAdmin && currentUser?.id !== task.assignee?.id) ||  !hasSelectedRows()">
+              {{'TABLE.BULK_CHANGE' | translate}}
+            </button>
+          </div>
+          <div class="table-actions">
+            <button mat-stroked-button *ngIf="filterEnabled" [disabled]="!filterEnabled" color="accent"
+                    (click)="mapTable.clearFilter()">{{'TABLE_FILTER.CLEAR_FILTER_BUTTON_NAME' | translate}}</button>
+            <mat-button-toggle
+              class="mat-stroked-button filter-button-toggle"
+              [checked]="filterEnabled" (change)="filterEnabled = $event.source.checked">
+              <mat-icon>filter_list</mat-icon>
+              {{'TABLE_FILTER.TABLE_FILTER_TOGGLE_NAME' | translate}}
+            </mat-button-toggle>
+            <button mat-stroked-button [matMenuTriggerFor]="menu">
+              <mat-icon class="material-icons-outlined">view_column</mat-icon>
+              {{'TABLE_FILTER.SHOW_HIDE_BUTTON_NAME' | translate}}
+            </button>
+            <mat-menu #menu="matMenu">
+              <!-- mat-checkbox is in a div to stop multiple items appearing on the one line and to make scroll work-->
+              <div mat-menu-item *ngFor="let column of hideShowColumns">
+                <mat-checkbox [checked]="true" (change)="onHideShowChange($event, column)">{{getHideShowItemLabel(column) | translate}}</mat-checkbox> 
+              </div>          
+            </mat-menu>
+            &nbsp;
+          </div>
         </div>
         <div class="container-table">
           <app-mapping-table #mapTable

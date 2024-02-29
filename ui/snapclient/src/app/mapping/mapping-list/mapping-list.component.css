@@ -8,9 +8,10 @@
 }
 
 .container-scroll-list {
-  height: calc(100vh - 306px);
+  height: calc(100vh - 317px);
   overflow-y: auto;
   width: 100%;
+  border-radius: 4px;
 }
 
 .container-scroll-list.has-error {
@@ -33,6 +34,10 @@
   background-color: #e6e6e6;
 }
 
+.mapping-list-paginator {
+  border-radius: 4px 4px 0 0;
+}
+
 .mat-cell, .mat-header-cell {
   padding: 10px;
 }
@@ -41,13 +46,12 @@
   margin: 2px 3px;
 }
 
-.mat-cell > .mat-icon-button {
-  border-radius: 4px;
-  width: 62px;
-}
-
 .mat-column-actions {
   width: 8%;
+}
+
+.mat-column-actions .mat-stroked-button {
+  width: 100%;
 }
 
 .mat-column-description {
@@ -82,6 +86,11 @@
   z-index: 3;
 }
 
+.mat-raised-button mat-icon,
+.mat-stroked-button mat-icon {
+  font-size: 22px;
+}
+
 .mat-row {
   height: 61px;
   cursor: pointer;
@@ -99,6 +108,14 @@ button.cancel {
 
 table {
   width: 100%;
+  border-radius: 0 0 4px 4px;
+}
+
+table tr:last-child > td:first-child {
+  border-bottom-left-radius: 4px;
+}
+table tr:last-child > td:last-child {
+  border-bottom-right-radius: 4px;
 }
 
 @media only screen and (max-width: 700px) {
