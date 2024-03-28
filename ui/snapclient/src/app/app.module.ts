@@ -133,9 +133,12 @@ import { AcceptTermsComponent } from './accept-terms/accept-terms.component';
 import { MappingNotesComponent } from './mapping/mapping-table-notes/mapping-notes.component';
 import { ResizeColumnComponent } from './column-resize/resize-column.component';
 
+const baseTag = document.querySelector('base');
+const baseHref = baseTag ? baseTag.getAttribute('href') : './';
+
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(httpClient: HttpClient): TranslateHttpLoader {
-  return new TranslateHttpLoader(httpClient);
+  return new TranslateHttpLoader(httpClient, `${baseHref}assets/i18n/`);
 }
 
 
